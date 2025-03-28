@@ -6,6 +6,7 @@ import Services from './pages/Services';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import { useAuth } from '../context/AuthContext'; // Import the useAuth hook
+import AudioTherapy from './pages/AudioTherapy';
 
 function App() {
   const { user, logout } = useAuth(); // Access user information and logout function
@@ -13,7 +14,7 @@ function App() {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
 
   return (
-    <Router>
+    <Router future={{ v7_relativeSplatPath: true }}>
       <div className="bg-stress-dark min-h-screen text-white">
         {/* Navigation */}
         <nav className="bg-stress-gray fixed w-full z-50">
@@ -105,7 +106,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/services/audio" element={<Services />} />
+            <Route path="/services/audio" element={<AudioTherapy />} />
             <Route path="/services/video" element={<Services />} />
             <Route path="/services/chat" element={<Services />} />
             <Route path="/services/meditation" element={<Services />} />

@@ -1,9 +1,12 @@
 import React from 'react';
 import { Music, Activity, Laugh, BookOpen, User, MessageCircle, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function Services() {
+  const navigate = useNavigate();
+
   return (
-    <div className="py-20 px-4 bg-gray-50">
+    <div className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-center mb-16">
           Our <span className="text-stress-yellow">Services</span>
@@ -19,7 +22,10 @@ function Services() {
             <p className="text-gray-600 flex-grow">
               Experience 24/7 mental health support through our advanced AI companion.
             </p>
-            <button className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2">
+            <button 
+              onClick={() => navigate('/chat-with-nirvaan')}
+              className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
+            >
               Learn More
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -34,7 +40,10 @@ function Services() {
             <p className="text-gray-600 flex-grow">
               Experience the healing power of sound through our specialized audio therapy sessions.
             </p>
-            <button className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2">
+            <button 
+              onClick={() => navigate('/audio-therapy')}
+              className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
+            >
               Learn More
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -49,7 +58,10 @@ function Services() {
             <p className="text-gray-600 flex-grow">
               Reconnect with your body through guided movement sessions. Our physical therapy combines stress relief with gentle exercise.
             </p>
-            <button className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2">
+            <button 
+              onClick={() => navigate('/physical-therapy')}
+              className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
+            >
               Learn More
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -64,7 +76,10 @@ function Services() {
             <p className="text-gray-600 flex-grow">
               Experience the joy of laughter yoga and group sessions. Release stress and boost your mood naturally through the power of laughter.
             </p>
-            <button className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2">
+            <button 
+              onClick={() => navigate('/laughing-therapy')}
+              className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
+            >
               Learn More
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -79,7 +94,10 @@ function Services() {
             <p className="text-gray-600 flex-grow">
               Discover healing through literature with our guided reading therapy sessions.
             </p>
-            <button className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2">
+            <button 
+              onClick={() => navigate('/reading-therapy')}
+              className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
+            >
               Learn More
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -94,7 +112,10 @@ function Services() {
             <p className="text-gray-600 flex-grow">
               Connect with experienced healthcare professionals for expert medical guidance.
             </p>
-            <button className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2">
+            <button 
+              onClick={() => navigate('/doctor-consultation')}
+              className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
+            >
               Learn More
               <ArrowRight className="h-4 w-4" />
             </button>
