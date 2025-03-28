@@ -5,8 +5,11 @@ import Home from './pages/Home';
 import Services from './pages/Services';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import { useAuth } from '../context/AuthContext'; // Import the useAuth hook
 
 function App() {
+  const { user, logout } = useAuth(); // Access user information and logout function
+
   return (
     <Router>
       <div className="bg-stress-dark min-h-screen text-white">
@@ -26,6 +29,7 @@ function App() {
                 <button 
                   onClick={() => window.open('#chatbot-url', '_blank')}
                   className="flex items-center space-x-2 bg-stress-yellow text-stress-dark px-4 py-2 rounded-full hover:bg-opacity-90 transition-all"
+                  aria-label="Chat with us"
                 >
                   <MessageCircle className="w-5 h-5" />
                   <span>Chat Now</span>
@@ -33,19 +37,34 @@ function App() {
                 
                 {/* Auth Buttons */}
                 <div className="flex items-center space-x-4">
-                  <Link 
-                    to="/login"
-                    className="flex items-center space-x-2 text-stress-yellow hover:text-stress-yellow/80 transition-colors"
-                  >
-                    <User className="w-5 h-5" />
-                    <span>Login</span>
-                  </Link>
-                  <Link 
-                    to="/signup"
-                    className="bg-stress-yellow text-stress-dark px-4 py-2 rounded-full hover:bg-opacity-90 transition-all"
-                  >
-                    Sign Up
-                  </Link>
+                  {user ? (
+                    <>
+                      <span className="text-stress-yellow">{user.username}</span>
+                      <button 
+                        onClick={logout}
+                        className="bg-stress-yellow text-stress-dark px-4 py-2 rounded-full hover:bg-opacity-90 transition-all"
+                        aria-label="Logout"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link 
+                        to="/login"
+                        className="flex items-center space-x-2 text-stress-yellow hover:text-stress-yellow/80 transition-colors"
+                      >
+                        <User className="w-5 h-5" />
+                        <span>Login</span>
+                      </Link>
+                      <Link 
+                        to="/signup"
+                        className="bg-stress-yellow text-stress-dark px-4 py-2 rounded-full hover:bg-opacity-90 transition-all"
+                      >
+                        Sign Up
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
