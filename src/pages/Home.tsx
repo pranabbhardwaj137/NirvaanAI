@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Waves, Brain, Heart, Instagram, Twitter, Facebook, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Typewriter from '../components/Typewriter';
 
 function Home() {
   const vantaRef = useRef(null);
@@ -28,15 +29,24 @@ function Home() {
       <header className="relative h-screen flex items-center overflow-hidden">
         <div ref={vantaRef} className="absolute inset-0 z-0" />
         <div className="z-10 container mx-auto px-4 flex items-center justify-between">
-          {/* Left side - Text content */}
+          {/* Left side - Image */}
+          
+          
+          {/* Right side - Text content */}
           <div className="max-w-2xl">
             <h1 className="text-6xl font-bold mb-6 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
               Welcome to
               <span className="text-stress-yellow drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]"> Nirvaan</span>
             </h1>
             <p className="text-xl mb-8 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-              Your journey to mental wellness begins here. Let us guide you through proven techniques for stress management and peaceful living.
+              <Typewriter 
+                text="Your journey to mental wellness begins here. Let us guide you through proven techniques for stress management and peaceful living."
+                speed={30}
+              />
             </p>
+
+            
+
             <div className="flex space-x-4">
               <Link to="/services" className="bg-stress-yellow text-stress-dark px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
                 Start Your Journey
@@ -47,19 +57,21 @@ function Home() {
               >
                 <MessageCircle className="w-5 h-5" />
                 <span>Talk to Nirvaan</span>
+
+
+               
               </button>
             </div>
           </div>
-          
-          {/* Right side - Image */}
-          <div className="hidden lg:block w-1/2">
+        </div>
+        image div
+         <div className="hidden lg:block w-1/2">
             <img 
-              src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=800"
-              alt="Peaceful meditation"
+              src="/src/imgs/lady_sitting_for_therapy.png"
+              alt="Therapy session"
               className="rounded-2xl shadow-2xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]"
             />
           </div>
-        </div>
       </header>
 
       {/* About Us Section */}
