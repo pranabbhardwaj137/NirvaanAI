@@ -31,7 +31,8 @@ const User = mongoose.model('User', userSchema);
 const auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization').replace('Bearer ', '');
-    const decoded = jwt.verify(token, 'your_jwt_secret');
+    const decoded = jwt.verify(token, 'a-string-secret-at-least-256-bits-long');
+    console.log("JWT WOKRING")
     const user = await User.findOne({ _id: decoded._id });
 
     if (!user) {
@@ -80,7 +81,7 @@ app.post('/api/auth/Login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid login credentials' });
     }
 
-    const token = jwt.sign({ _id: user._id }, 'your_jwt_secret');
+    const token = jwt.sign({ _id: user._id }, 'a-string-secret-at-least-256-bits-long');
     res.json({ user, token });
   } catch (error) {
     res.status(400).json({ error: 'Failed to login' });
