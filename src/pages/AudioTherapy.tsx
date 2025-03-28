@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Music, Activity, Laugh, BookOpen, User, MessageCircle, ArrowRight } from 'lucide-react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import MoodAssessment from '../components/MoodAssessment';
 
 function AudioTherapy() {
+  const [showAssessment, setShowAssessment] = useState(false);
+
   useEffect(() => {
     AOS.init();
   }, []);
@@ -26,17 +29,36 @@ function AudioTherapy() {
               Welcome to Our <br />
               <span className="text-stress-yellow">Audio Therapy</span>
             </h1>
-            <h3 className="text-xl" data-aos="fade-up" data-aos-duration="800">
+            <h3 className="text-xl mb-8" data-aos="fade-up" data-aos-duration="800">
               Listen to Music, Motivational Podcasts and Audiobooks <br />
               to gain some happiness, knowledge and also lighten your stress side by side.
             </h3>
+            {/* <button
+              onClick={() => setShowAssessment(true)}
+              className="px-8 py-4 bg-stress-yellow text-gray-900 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-all"
+              data-aos="fade-up" data-aos-duration="1000"
+            >
+              
+            </button> */}
           </div>
         </div>
       </header>
 
+      {/* Mood Assessment Section
+      {showAssessment && (
+        <section className="py-20 px-4 bg-gray-900">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-12">
+               <span className="text-stress-yellow">Mood Assessment</span>
+            </h2>
+            <MoodAssessment />
+          </div>
+        </section>
+      )} */} 
+
       {/* Music Section */}
-      <section id="music" className="py-20 px-4">
-        <h2 className="text-4xl font-bold text-center mb-12">Music</h2>
+      <section id="music" className="py-20 px-4 bg-gray-900">
+        <h2 className="text-4xl font-bold text-center mb-12 text-white">Music</h2>
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div data-aos="fade-up" data-aos-duration="1000" className="bg-black rounded-lg p-6 shadow-lg">
             <h3 className="text-2xl font-semibold mb-4 text-white">Stress Relief Sounds</h3>

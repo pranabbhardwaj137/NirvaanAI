@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Waves, Brain, Heart, Instagram, Twitter, Facebook, MessageCircle } from 'lucide-react';
+import { Waves, Brain, Heart, Instagram, Twitter, Facebook, MessageCircle, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Typewriter from '../components/Typewriter';
 
@@ -58,9 +58,14 @@ function Home() {
                 <MessageCircle className="w-5 h-5" />
                 <span>Talk to Nirvaan</span>
 
-
-               
               </button>
+              <Link 
+                to="/recommended"
+                className="flex items-center space-x-2 bg-stress-dark border-2 border-stress-yellow text-stress-yellow px-8 py-3 rounded-full hover:bg-stress-yellow hover:text-stress-dark transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
+              >
+                <Users className="w-5 h-5" />
+                <span>Join Community</span>
+              </Link>
             </div>
           </div>
         </div>
