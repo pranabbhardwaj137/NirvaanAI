@@ -10,6 +10,7 @@ import Chatbot from './components/Chatbot';
 import AudioTherapy from './pages/AudioTherapy';
 import MoodAssessmentPage from './pages/MoodAssessmentPage';
 import DoctorConsultation from './pages/DoctorConsultation';
+import ChatWithNirvaan from './pages/ChatWithNirvaan';
 
 function App() {
   const { user, logout } = useAuth();
@@ -100,6 +101,7 @@ function App() {
             <Route path="/services/meditation" element={<Services />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/chat-with-nirvaan" element={<ChatWithNirvaan />} />
             <Route path="/doctor-consultation" element={<DoctorConsultation />} />  
 
             <Route path="/mood-assessment" element={<MoodAssessmentPage />} />

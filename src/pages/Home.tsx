@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { Waves, Brain, Heart, Instagram, Twitter, Facebook, MessageCircle, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Typewriter from '../components/Typewriter';
 
 function Home() {
   const vantaRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (window.VANTA) {
@@ -51,14 +52,13 @@ function Home() {
               <Link to="/services" className="bg-stress-yellow text-stress-dark px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
                 Start Your Journey
               </Link>
-              <button 
-                onClick={() => window.open('#chatbot-url', '_blank')}
+              <Link 
+                to="/chat-with-nirvaan"
                 className="flex items-center space-x-2 bg-stress-dark border-2 border-stress-yellow text-stress-yellow px-8 py-3 rounded-full hover:bg-stress-yellow hover:text-stress-dark transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
               >
                 <MessageCircle className="w-5 h-5" />
                 <span>Talk to Nirvaan</span>
-
-              </button>
+              </Link>
               <Link 
                 to="/recommended"
                 className="flex items-center space-x-2 bg-stress-dark border-2 border-stress-yellow text-stress-yellow px-8 py-3 rounded-full hover:bg-stress-yellow hover:text-stress-dark transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
