@@ -110,7 +110,7 @@ function Home() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-xl font-bold mb-4">Nirv<span className="text-stress-yellow">aan</span></h3>
-              <p className="text-gray-400">Your journey to inner peace starts with us.</p>
+              <p className="text-gray-400">Nirvaan Stress Reliever is a website that offers personalized mental health support by recommending stress-relieving songs, movies, and books tailored to each user’s needs.</p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Quick Links</h4>
@@ -132,13 +132,13 @@ function Home() {
             <div>
               <h4 className="font-semibold mb-4">Connect With Us</h4>
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-stress-yellow">
+                <a target="_blank" href="https://www.instagram.com/pranxb/" className="text-gray-400 hover:text-stress-yellow">
                   <Instagram className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-stress-yellow">
+                <a target="_blank" href="https://x.com/?lang=en" className="text-gray-400 hover:text-stress-yellow">
                   <Twitter className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-stress-yellow">
+                <a target="_blank" href="https://www.facebook.com/" className="text-gray-400 hover:text-stress-yellow">
                   <Facebook className="w-6 h-6" />
                 </a>
               </div>

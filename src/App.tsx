@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { MessageCircle, User, ChevronDown } from 'lucide-react';
+import { MessageCircle, User, ChevronDown, Instagram, Twitter, FacebookIcon } from 'lucide-react';
 import Home from './pages/Home';
 import Services from './pages/Services';
 import Login from './pages/Login';
@@ -93,6 +93,28 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
           </Routes>
+        </div>
+
+        {/* Footer */}
+        <div className="bg-stress-gray py-8">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h4 className="font-semibold mb-4">Connect With Us</h4>
+                <div className="flex space-x-4">
+                  <a href="https://www.instagram.com/pranxb/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-stress-yellow">
+                    <Instagram className="w-6 h-6" />
+                  </a>
+                  <a href="#" className="text-gray-400 hover:text-stress-yellow">
+                    <Twitter className="w-6 h-6" />
+                  </a>
+                  <a href="#" className="text-gray-400 hover:text-stress-yellow">
+                    <FacebookIcon className="w-6 h-6" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Router>
