@@ -3,7 +3,11 @@ import { Waves, Brain, Heart, Instagram, Twitter, Facebook, MessageCircle, Users
 import { Link, useNavigate } from 'react-router-dom';
 import Typewriter from '../components/Typewriter';
 
-function Home() {
+interface HomeProps {
+  setShowChat: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function Home({ setShowChat }: HomeProps) {
   const vantaRef = useRef(null);
   const navigate = useNavigate();
 
