@@ -1,37 +1,63 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Waves, Brain, Heart, Instagram, Twitter, Facebook, MessageCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function Home() {
+  const vantaRef = useRef(null);
+
+  useEffect(() => {
+    if (window.VANTA) {
+      window.VANTA.BIRDS({
+        el: vantaRef.current,
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: 1.00,
+        scaleMobile: 1.00,
+        color1: 0xffea00,
+        color2: 0x2fff
+      });
+    }
+  }, []);
+
   return (
     <>
       {/* Hero Section */}
-      <header className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1920"
-            alt="Peaceful background"
-            className="w-full h-full object-cover opacity-20"
-          />
-        </div>
-        <div className="z-10 text-center px-4">
-          <h1 className="text-6xl font-bold mb-6">
-            Welcome to
-            <span className="text-stress-yellow"> Nirvaan</span>
-          </h1>
-          <p className="text-xl max-w-2xl mx-auto mb-8 text-gray-300">
-            Your journey to mental wellness begins here. Let us guide you through proven techniques for stress management and peaceful living.
-          </p>
-          <div className="flex justify-center space-x-4">
-            <button className="bg-stress-yellow text-stress-dark px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all">
-              Start Your Journey
-            </button>
-            <button 
-              onClick={() => window.open('#chatbot-url', '_blank')}
-              className="flex items-center space-x-2 bg-stress-dark border-2 border-stress-yellow text-stress-yellow px-8 py-3 rounded-full hover:bg-stress-yellow hover:text-stress-dark transition-all"
-            >
-              <MessageCircle className="w-5 h-5" />
-              <span>Talk to Nirvaan</span>
-            </button>
+      <header className="relative h-screen flex items-center overflow-hidden">
+        <div ref={vantaRef} className="absolute inset-0 z-0" />
+        <div className="z-10 container mx-auto px-4 flex items-center justify-between">
+          {/* Left side - Text content */}
+          <div className="max-w-2xl">
+            <h1 className="text-6xl font-bold mb-6 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+              Welcome to
+              <span className="text-stress-yellow drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]"> Nirvaan</span>
+            </h1>
+            <p className="text-xl mb-8 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+              Your journey to mental wellness begins here. Let us guide you through proven techniques for stress management and peaceful living.
+            </p>
+            <div className="flex space-x-4">
+              <Link to="/services" className="bg-stress-yellow text-stress-dark px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                Start Your Journey
+              </Link>
+              <button 
+                onClick={() => window.open('#chatbot-url', '_blank')}
+                className="flex items-center space-x-2 bg-stress-dark border-2 border-stress-yellow text-stress-yellow px-8 py-3 rounded-full hover:bg-stress-yellow hover:text-stress-dark transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span>Talk to Nirvaan</span>
+              </button>
+            </div>
+          </div>
+          
+          {/* Right side - Image */}
+          <div className="hidden lg:block w-1/2">
+            <img 
+              src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=800"
+              alt="Peaceful meditation"
+              className="rounded-2xl shadow-2xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]"
+            />
           </div>
         </div>
       </header>
@@ -52,11 +78,15 @@ function Home() {
                 About <span className="text-stress-yellow">Us</span>
               </h2>
               <p className="text-gray-300 mb-6">
-                We are a team of dedicated professionals passionate about helping people find balance in their lives. With over a decade of experience in stress management and mental wellness, we've helped thousands of individuals achieve lasting peace.
+              At Nirvaan, we believe that true well-being comes from a balance of mind, body, and soul. Our approach blends ancient wisdom with modern science, offering you a personalized path to inner peace and mental clarity.
               </p>
-              <p className="text-gray-300">
-                Our approach combines traditional wisdom with modern science, creating a unique methodology that adapts to your individual needs and lifestyle.
+              <p className="text-gray-300 mb-6">
+            Through proven techniques, we help you reduce stress, regain balance, and cultivate mindfulness - empowering you to lead a more fulfilling life.</p>
+
+            <p className="text-gray-300 mb-6">
+            Breathe. Heal. Transform. Your journey to wellness begins today.
               </p>
+              
             </div>
           </div>
         </div>
