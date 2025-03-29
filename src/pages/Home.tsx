@@ -96,7 +96,7 @@ function Home({ setShowChat }: HomeProps) {
             </div>
             <div>
               <h2 className="text-4xl font-bold mb-6">
-                About <span className="text-stress-yellow">Us</span>
+                 <span className="text-stress-yellow">About Us</span>
               </h2>
               <p className="text-gray-300 mb-6">
               At Nirvaan, we believe that true well-being comes from a balance of mind, body, and soul. Our approach blends ancient wisdom with modern science, offering you a personalized path to inner peace and mental clarity.
@@ -114,11 +114,11 @@ function Home({ setShowChat }: HomeProps) {
       </section>
 
       {/* Footer */}
-      <footer className="bg-stress-gray py-12">
+      <footer className="bg-gray-700 py-12">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">Nirv<span className="text-stress-yellow">aan</span></h3>
+              <h3 className="text-xl font-bold mb-4"><span className="text-stress-yellow">Nirvaan</span></h3>
               <p className="text-gray-400">Your journey to inner peace starts with us.</p>
             </div>
             <div>
