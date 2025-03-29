@@ -73,6 +73,9 @@ function CreateRecommendation() {
               disabled={loading}
             >
               <option value="">Select a type</option>
+              <option value="Music">Music</option>
+              <option value="Movie">Movie</option>
+              <option value="Places to Visit">Places to Visit</option>
               <option value="Exercise">Exercise</option>
               <option value="Meditation">Meditation</option>
               <option value="Diet">Diet</option>
