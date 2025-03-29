@@ -17,6 +17,8 @@ import PhysicalTherapy from './pages/PhysicalTherapy';
 import CreateTask from './pages/CreateTask';
 import Recommendations from './pages/Recommendations';
 import CreateRecommendation from './pages/CreateRecommendation';
+import CreateEvent from './pages/CreateEvent';
+import Notifications from './components/Notifications';
 
 function AppContent() {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
@@ -85,30 +87,18 @@ function AppContent() {
             </button>
 
             {/* Auth Buttons */}
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <>
-                  <span className="text-yellow-500">{user.username}</span>
-                  <button
-                    onClick={handleLogout}
-                    className="bg-yellow-500 text-black px-4 py-2 rounded-full hover:bg-yellow-400 transition-all font-semibold"
-                    aria-label="Logout"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" className="flex items-center space-x-2 text-yellow-500 hover:text-yellow-400 transition-colors">
-                    <User className="w-5 h-5" />
-                    <span>Login</span>
-                  </Link>
-                  <Link to="/signup" className="bg-yellow-500 text-black px-4 py-2 rounded-full hover:bg-yellow-400 transition-all font-semibold">
-                    Sign Up
-                  </Link>
-                </>
-              )}
-            </div>
+            {user && (
+              <div className="flex items-center space-x-4">
+                <Notifications />
+                <span className="text-gray-700">Welcome, {user.username}</span>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </nav>
@@ -130,6 +120,7 @@ function AppContent() {
           <Route path="/create-task" element={<CreateTask />} />
           <Route path="/recommendations" element={<Recommendations />} />
           <Route path="/create-recommendation" element={<CreateRecommendation />} />
+          <Route path="/create-event" element={<CreateEvent />} />
         </Routes>
       </div>
 

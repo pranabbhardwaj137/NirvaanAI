@@ -38,6 +38,46 @@ const recommendationSchema = new mongoose.Schema({
 
 const Recommendation = mongoose.model('Recommendation', recommendationSchema);
 
+// Event Schema
+const eventSchema = new mongoose.Schema({
+  creatorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  sport: { type: String, required: true },
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  date: { type: Date, required: true },
+  duration: { type: Number, required: true }, // in minutes
+  maxParticipants: { type: Number, required: true },
+  currentParticipants: { type: Number, default: 0 },
+  location: { type: String, required: true },
+  status: { type: String, enum: ['open', 'full', 'cancelled'], default: 'open' },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Event = mongoose.model('Event', eventSchema);
+
+// Event Participant Schema
+const eventParticipantSchema = new mongoose.Schema({
+  eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const EventParticipant = mongoose.model('EventParticipant', eventParticipantSchema);
+
+// Notification Schema
+const notificationSchema = new mongoose.Schema({
+  recipientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true },
+  type: { type: String, enum: ['join_request', 'request_accepted', 'request_rejected'], required: true },
+  message: { type: String, required: true },
+  read: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Notification = mongoose.model('Notification', notificationSchema);
+
 // Authentication Middleware
 const auth = async (req, res, next) => {
   try {
@@ -168,6 +208,219 @@ app.post('/api/recommendations', auth, async (req, res) => {
   } catch (error) {
     console.error('Error creating recommendation:', error);
     res.status(500).json({ error: 'Failed to create recommendation' });
+  }
+});
+
+// Create Event (Protected)
+app.post('/api/events', auth, async (req, res) => {
+  try {
+    const { sport, title, description, date, duration, maxParticipants, location } = req.body;
+    
+    if (!sport || !title || !description || !date || !duration || !maxParticipants || !location) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    const event = new Event({
+      creatorId: req.user._id,
+      sport,
+      title,
+      description,
+      date,
+      duration,
+      maxParticipants,
+      location
+    });
+
+    await event.save();
+    
+    const populatedEvent = await Event.findById(event._id)
+      .populate('creatorId', 'username email');
+
+    res.status(201).json(populatedEvent);
+  } catch (error) {
+    console.error('Error creating event:', error);
+    res.status(500).json({ error: 'Failed to create event' });
+  }
+});
+
+// Get All Events
+app.get('/api/events', async (req, res) => {
+  try {
+    const events = await Event.find()
+      .populate('creatorId', 'username email')
+      .sort({ date: 1 });
+    res.json(events);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ error: 'Failed to fetch events' });
+  }
+});
+
+// Join Event (Protected)
+app.post('/api/events/:eventId/join', auth, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.eventId);
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    if (event.status !== 'open') {
+      return res.status(400).json({ error: 'Event is not open for joining' });
+    }
+
+    if (event.currentParticipants >= event.maxParticipants) {
+      return res.status(400).json({ error: 'Event is full' });
+    }
+
+    // Check if user is already a participant
+    const existingParticipant = await EventParticipant.findOne({
+      eventId: event._id,
+      userId: req.user._id
+    });
+
+    if (existingParticipant) {
+      return res.status(400).json({ error: 'You have already joined this event' });
+    }
+
+    // Create participant record
+    const participant = new EventParticipant({
+      eventId: event._id,
+      userId: req.user._id
+    });
+
+    await participant.save();
+
+    // Create notification for event creator
+    const notification = new Notification({
+      recipientId: event.creatorId,
+      senderId: req.user._id,
+      eventId: event._id,
+      type: 'join_request',
+      message: `${req.user.username} wants to join your event "${event.title}"`
+    });
+
+    await notification.save();
+
+    res.status(201).json(participant);
+  } catch (error) {
+    console.error('Error joining event:', error);
+    res.status(500).json({ error: 'Failed to join event' });
+  }
+});
+
+// Accept/Reject Participant (Protected)
+app.put('/api/events/:eventId/participants/:participantId', auth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['accepted', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const event = await Event.findById(req.params.eventId);
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    if (event.creatorId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to manage this event' });
+    }
+
+    const participant = await EventParticipant.findById(req.params.participantId);
+    if (!participant) {
+      return res.status(404).json({ error: 'Participant not found' });
+    }
+
+    participant.status = status;
+    await participant.save();
+
+    // Create notification for the participant
+    const notification = new Notification({
+      recipientId: participant.userId,
+      senderId: req.user._id,
+      eventId: event._id,
+      type: status === 'accepted' ? 'request_accepted' : 'request_rejected',
+      message: status === 'accepted' 
+        ? `Your request to join "${event.title}" has been accepted!`
+        : `Your request to join "${event.title}" has been rejected.`
+    });
+
+    await notification.save();
+
+    // Update event participant count if accepted
+    if (status === 'accepted') {
+      event.currentParticipants += 1;
+      if (event.currentParticipants >= event.maxParticipants) {
+        event.status = 'full';
+      }
+      await event.save();
+    }
+
+    res.json(participant);
+  } catch (error) {
+    console.error('Error updating participant status:', error);
+    res.status(500).json({ error: 'Failed to update participant status' });
+  }
+});
+
+// Get User's Events (Protected)
+app.get('/api/events/my-events', auth, async (req, res) => {
+  try {
+    const createdEvents = await Event.find({ creatorId: req.user._id })
+      .populate('creatorId', 'username email')
+      .sort({ date: 1 });
+
+    const joinedEvents = await EventParticipant.find({ userId: req.user._id })
+      .populate({
+        path: 'eventId',
+        populate: { path: 'creatorId', select: 'username email' }
+      })
+      .sort({ createdAt: -1 });
+
+    res.json({
+      created: createdEvents,
+      joined: joinedEvents
+    });
+  } catch (error) {
+    console.error('Error fetching user events:', error);
+    res.status(500).json({ error: 'Failed to fetch user events' });
+  }
+});
+
+// Get User's Notifications (Protected)
+app.get('/api/notifications', auth, async (req, res) => {
+  try {
+    const notifications = await Notification.find({ recipientId: req.user._id })
+      .populate('senderId', 'username')
+      .populate('eventId', 'title')
+      .sort({ createdAt: -1 });
+    
+    res.json(notifications);
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+// Mark Notification as Read (Protected)
+app.put('/api/notifications/:notificationId/read', auth, async (req, res) => {
+  try {
+    const notification = await Notification.findById(req.params.notificationId);
+    
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
+
+    if (notification.recipientId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to update this notification' });
+    }
+
+    notification.read = true;
+    await notification.save();
+
+    res.json(notification);
+  } catch (error) {
+    console.error('Error updating notification:', error);
+    res.status(500).json({ error: 'Failed to update notification' });
   }
 });
 
