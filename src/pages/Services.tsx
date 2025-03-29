@@ -41,7 +41,7 @@ function Services() {
               Experience the healing power of sound through our specialized audio therapy sessions.
             </p>
             <button 
-              onClick={() => navigate('/audio-therapy')}
+              onClick={() => navigate('/services/audio')}
               className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
             >
               Learn More
@@ -95,7 +95,7 @@ function Services() {
               Discover healing through literature with our guided reading therapy sessions.
             </p>
             <button 
-              onClick={() => navigate('/reading-therapy')}
+              onClick={() => navigate('/services/reading')}
               className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
             >
               Learn More

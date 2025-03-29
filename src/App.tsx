@@ -12,6 +12,7 @@ import MoodAssessmentPage from './pages/MoodAssessmentPage';
 import DoctorConsultation from './pages/DoctorConsultation';
 import ChatWithNirvaan from './pages/ChatWithNirvaan';
 import LaughingTherapy from './pages/LaughingTherapy';
+import ReadingTherapy from './pages/ReadingTherapy';
 
 function App() {
   const { user, logout } = useAuth();
@@ -39,8 +40,10 @@ function App() {
                     <Link to="/services/audio" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Audio Therapy</Link>
                     <Link to="/services/video" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Video Therapy</Link>
                     <Link to="/services/chat" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Chat Therapy</Link>
-                    <Link to="/doctor-consultation" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Doctor Consultation</Link>
+                    <Link to="/services/meditation" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Meditation</Link>
                     <Link to="/services/laughing" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Laughing Therapy</Link>
+                    <Link to="/services/reading" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Reading Therapy</Link>
+                    <Link to="/doctor-consultation" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Doctor Consultation</Link>
                   </div>
                 </div>
               </div>
@@ -102,6 +105,7 @@ function App() {
             <Route path="/services/chat" element={<Services />} />
             <Route path="/services/meditation" element={<Services />} />
             <Route path="/services/laughing" element={<LaughingTherapy />} />
+            <Route path="/services/reading" element={<ReadingTherapy />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/chat-with-nirvaan" element={<ChatWithNirvaan />} />
