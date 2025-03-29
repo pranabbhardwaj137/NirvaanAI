@@ -14,8 +14,8 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await signup(username, email, city ,password); // Call signup with username, email and password
-      navigate('/dashboard'); // Navigate to dashboard on success
+      await signup(username, email, city, password);
+      navigate('/login'); // Navigate to login page on success
     } catch (err) {
       setError('Failed to create account'); // Set error message on failure
     }

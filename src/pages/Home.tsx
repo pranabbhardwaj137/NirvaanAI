@@ -1,15 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Waves, Brain, Heart, Instagram, Twitter, Facebook, MessageCircle, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Typewriter from '../components/Typewriter';
+import { useAuth } from '../context/AuthContext';
 
-interface HomeProps {
-  setShowChat: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-function Home({ setShowChat }: HomeProps) {
+function Home() {
   const vantaRef = useRef(null);
   const navigate = useNavigate();
+  const [showChat, setShowChat] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (window.VANTA) {
@@ -29,7 +28,9 @@ function Home({ setShowChat }: HomeProps) {
   }, []);
 
   return (
-    <>
+    <div className="min-h-screen bg-stress-dark">
+      <div ref={vantaRef} className="absolute inset-0 z-0"></div>
+      
       {/* Hero Section */}
       <header className="relative h-screen flex items-center overflow-hidden">
         <div ref={vantaRef} className="absolute inset-0 z-0" />
@@ -158,7 +159,7 @@ function Home({ setShowChat }: HomeProps) {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
 

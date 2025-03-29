@@ -87,18 +87,30 @@ function AppContent() {
             </button>
 
             {/* Auth Buttons */}
-            {user && (
-              <div className="flex items-center space-x-4">
-                <Notifications />
-                <span className="text-gray-700">Welcome, {user.username}</span>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <>
+                  <Notifications />
+                  <span className="text-yellow-500">{user.username}</span>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-yellow-500 text-black px-4 py-2 rounded-full hover:bg-yellow-400 transition-all font-semibold"
+                    aria-label="Logout"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="text-yellow-500 hover:text-yellow-400 transition-colors">
+                    Login
+                  </Link>
+                  <Link to="/signup" className="bg-yellow-500 text-black px-4 py-2 rounded-full hover:bg-yellow-400 transition-all font-semibold">
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </nav>
@@ -106,7 +118,7 @@ function AppContent() {
       {/* Routes */}
       <div className="pt-16">
         <Routes>
-          <Route path="/" element={<Home setShowChat={setShowChat} />} />
+          <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />
           <Route path="/services/audio" element={<AudioTherapy />} />
           <Route path="/services/physical" element={<PhysicalTherapy />} />
