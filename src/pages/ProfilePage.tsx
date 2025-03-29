@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -10,8 +10,30 @@ import {
   Settings, 
   LogOut,
   User,
-  ChevronRight
+  ChevronRight,
+  TrendingUp
 } from 'lucide-react';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface UserProfile {
   username: string;
@@ -22,9 +44,26 @@ interface UserProfile {
   favoriteTherapy: string;
 }
 
+interface AssessmentResult {
+  date: string;
+  score: number;
+  recommendation: string;
+  recommendedTherapy: string;
+}
+
 const ProfilePage: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [assessmentHistory, setAssessmentHistory] = useState<AssessmentResult[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      const results = localStorage.getItem(`sentiscope_history_${user.username}`);
+      if (results) {
+        setAssessmentHistory(JSON.parse(results));
+      }
+    }
+  }, [user]);
 
   // If no user is logged in, redirect to login
   if (!user) {
@@ -38,13 +77,81 @@ const ProfilePage: React.FC = () => {
     email: user.email || 'user@example.com',
     joinDate: new Date().toLocaleDateString(),
     lastActive: 'Just now',
-    totalSessions: 12,
-    favoriteTherapy: 'Audio Therapy'
+    totalSessions: assessmentHistory.length,
+    favoriteTherapy: assessmentHistory.length > 0 
+      ? assessmentHistory[assessmentHistory.length - 1].recommendedTherapy 
+      : 'Audio Therapy'
   };
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const moodHistory = {
+    labels: assessmentHistory.map(result => new Date(result.date).toLocaleDateString()),
+    datasets: [
+      {
+        label: 'Mood Score',
+        data: assessmentHistory.map(result => result.score),
+        borderColor: '#EAB308',
+        backgroundColor: 'rgba(234, 179, 8, 0.1)',
+        tension: 0.4,
+        fill: true
+      }
+    ]
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        grid: {
+          color: 'rgba(255, 255, 255, 0.1)'
+        },
+        ticks: {
+          color: 'rgba(255, 255, 255, 0.7)'
+        }
+      },
+      x: {
+        grid: {
+          color: 'rgba(255, 255, 255, 0.1)'
+        },
+        ticks: {
+          color: 'rgba(255, 255, 255, 0.7)'
+        }
+      }
+    }
+  };
+
+  const generateMoodAnalysis = () => {
+    if (assessmentHistory.length === 0) {
+      return "You haven't taken any mood assessments yet. Try taking one to track your emotional well-being!";
+    }
+
+    const scores = assessmentHistory.map(result => result.score);
+    const average = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const trend = scores[scores.length - 1] - scores[0];
+    const trendPercentage = Math.round((trend / scores[0]) * 100);
+
+    let analysis = `Your mood has shown a ${trendPercentage > 0 ? 'positive' : 'negative'} trend over the past ${assessmentHistory.length} assessments, with an overall ${trendPercentage > 0 ? 'improvement' : 'decline'} of ${Math.abs(trendPercentage)}%. `;
+    
+    if (average >= 70) {
+      analysis += "You're maintaining a generally positive outlook. Keep up the good work!";
+    } else if (average >= 50) {
+      analysis += "You're experiencing moderate emotional well-being. Consider exploring some of our therapy options to boost your mood.";
+    } else {
+      analysis += "You might be going through a challenging period. We recommend trying our therapy services to help improve your emotional well-being.";
+    }
+
+    return analysis;
   };
 
   return (
@@ -119,48 +226,51 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
+        {/* Sentiscope History */}
+        <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/20">
+          <h2 className="text-xl font-bold text-white mb-6">Sentiscope History</h2>
+          <div className="space-y-6">
+            <div className="bg-black/20 rounded-xl p-6">
+              <div className="h-64">
+                {assessmentHistory.length > 0 ? (
+                  <Line data={moodHistory} options={options} />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-white/70">
+                    No mood assessment history available yet.
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="bg-black/20 rounded-xl p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <TrendingUp className="w-5 h-5 text-yellow-500" />
+                <h3 className="text-lg font-semibold text-white">Mood Analysis</h3>
+              </div>
+              <p className="text-white/90 leading-relaxed">
+                {generateMoodAnalysis()}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Recent Activity */}
         <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/20">
           <h2 className="text-xl font-bold text-white mb-6">Recent Activity</h2>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg hover:bg-black/30 transition-colors">
-              <div className="flex items-center space-x-4">
-                <div className="p-2 bg-yellow-500/20 rounded-lg">
-                  <MessageCircle className="w-5 h-5 text-yellow-500" />
+            {assessmentHistory.slice(-3).reverse().map((result, index) => (
+              <div key={index} className="flex items-center justify-between p-4 bg-black/20 rounded-lg hover:bg-black/30 transition-colors">
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                    <Activity className="w-5 h-5 text-yellow-500" />
+                  </div>
+                  <div>
+                    <p className="text-white">Mood Assessment - {result.score}%</p>
+                    <p className="text-sm text-yellow-500/80">{new Date(result.date).toLocaleDateString()}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-white">Chat Session with Nirvaan</p>
-                  <p className="text-sm text-yellow-500/80">30 minutes ago</p>
-                </div>
+                <ChevronRight className="w-5 h-5 text-yellow-500/60" />
               </div>
-              <ChevronRight className="w-5 h-5 text-yellow-500/60" />
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg hover:bg-black/30 transition-colors">
-              <div className="flex items-center space-x-4">
-                <div className="p-2 bg-yellow-500/20 rounded-lg">
-                  <Activity className="w-5 h-5 text-yellow-500" />
-                </div>
-                <div>
-                  <p className="text-white">Completed Mood Assessment</p>
-                  <p className="text-sm text-yellow-500/80">2 hours ago</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-yellow-500/60" />
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg hover:bg-black/30 transition-colors">
-              <div className="flex items-center space-x-4">
-                <div className="p-2 bg-yellow-500/20 rounded-lg">
-                  <Heart className="w-5 h-5 text-yellow-500" />
-                </div>
-                <div>
-                  <p className="text-white">Started Audio Therapy Session</p>
-                  <p className="text-sm text-yellow-500/80">1 day ago</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-yellow-500/60" />
-            </div>
+            ))}
           </div>
         </div>
 

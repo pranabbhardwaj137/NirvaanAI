@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface Question {
   id: number;
   text: string;
   options: string[];
+}
+
+interface AssessmentResult {
+  date: string;
+  score: number;
+  recommendation: string;
+  recommendedTherapy: string;
 }
 
 const questions: Question[] = [
@@ -38,6 +46,7 @@ const questions: Question[] = [
 
 const MoodAssessment: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -51,6 +60,7 @@ const MoodAssessment: React.FC = () => {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       setShowResults(true);
+      saveAssessmentResult();
     }
   };
 
@@ -79,6 +89,26 @@ const MoodAssessment: React.FC = () => {
     if (score >= 40) return "Motivational Rock";
     if (score >= 20) return "Soothing Jazz";
     return "Meditation Music";
+  };
+
+  const saveAssessmentResult = () => {
+    if (!user) return;
+
+    const score = calculateScore();
+    const recommendation = getMoodRecommendation(score);
+    const recommendedTherapy = getRecommendedTherapy(score);
+
+    const result: AssessmentResult = {
+      date: new Date().toISOString(),
+      score,
+      recommendation,
+      recommendedTherapy
+    };
+
+    const existingResults = localStorage.getItem(`sentiscope_history_${user.username}`);
+    const results: AssessmentResult[] = existingResults ? JSON.parse(existingResults) : [];
+    results.push(result);
+    localStorage.setItem(`sentiscope_history_${user.username}`, JSON.stringify(results));
   };
 
   if (showResults) {
