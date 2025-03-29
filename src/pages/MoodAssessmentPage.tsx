@@ -16,7 +16,7 @@ const MoodAssessmentPage: React.FC = () => {
       {/* Content */}
       <div className="relative container mx-auto px-4 py-8 z-10">
         <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold text-white mb-4 drop-shadow-lg">
+          <h1 className="text-6xl font-bold text-stress-yellow mb-4 drop-shadow-lg group-hover:text-white transition-colors duration-300">
             Sentiscope
           </h1>
           <p className="text-xl text-white/90 max-w-2xl mx-auto drop-shadow-md">

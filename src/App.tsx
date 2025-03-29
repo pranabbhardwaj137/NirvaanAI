@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { MessageCircle, User, ChevronDown } from 'lucide-react';
+import { MessageCircle, User, ChevronDown, Activity } from 'lucide-react';
 import Home from './pages/Home';
 import Services from './pages/Services';
 import Login from './pages/Login';
@@ -26,8 +26,9 @@ function App() {
         {/* Navigation */}
         <nav className="bg-black/90 backdrop-blur-sm fixed w-full z-50 border-b border-yellow-500/20">
           <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <Link to="/" className="text-2xl font-bold text-yellow-500">
-              Nirv<span className="text-yellow-400">aan</span>
+            <Link to="/" className="text-2xl font-bold">
+              <span className="text-white">Nirv</span>
+              <span className="text-stress-yellow">aan</span>
             </Link>
             <div className="flex items-center space-x-8">
               {/* Services Dropdown */}
@@ -50,19 +51,22 @@ function App() {
               {/* Sentiscope Link */}
               <Link 
                 to="/mood-assessment"
-                className="text-yellow-500 hover:text-yellow-400 transition-colors"
+                className="group flex items-center space-x-2 px-4 py-2 rounded-full bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 hover:text-yellow-400 transition-all duration-300 border border-yellow-500/20 hover:border-yellow-500/40"
               >
-                Sentiscope
+                <Activity className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                <span className="font-medium">Sentiscope</span>
+                <span className="text-xs opacity-70 group-hover:opacity-100">Mood Check</span>
               </Link>
 
               {/* Chatbot Button */}
               <button 
                 onClick={() => setShowChat(!showChat)}
-                className="flex items-center space-x-2 text-yellow-500 hover:text-yellow-400 transition-colors"
+                className="group flex items-center space-x-2 px-4 py-2 rounded-full bg-yellow-500 hover:bg-yellow-400 text-white transition-all duration-300 border-2 border-yellow-500 hover:border-yellow-400 shadow-lg hover:shadow-yellow-500/20"
                 aria-label="Chat with us"
               >
-                <MessageCircle className="w-5 h-5" />
-                <span>Chat Now</span>
+                <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                <span className="font-semibold">Chat Now</span>
+                
               </button>
 
               {/* Auth Buttons */}
