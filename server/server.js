@@ -27,6 +27,17 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
+// Recommendation Schema
+const recommendationSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  type: { type: String, required: true },
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Recommendation = mongoose.model('Recommendation', recommendationSchema);
+
 // Authentication Middleware
 const auth = async (req, res, next) => {
   try {
@@ -47,9 +58,9 @@ const auth = async (req, res, next) => {
 };
 
 // Auth Routes
-app.post('/api/auth/SignUp', async (req, res) => {
+app.post('/api/auth/signup', async (req, res) => {
   try {
-    const { username, email, city , password } = req.body;
+    const { username, email, city, password } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -57,34 +68,106 @@ app.post('/api/auth/SignUp', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 8);
-    const user = new User({ username, email, city ,password: hashedPassword });
+    const user = new User({ username, email, city, password: hashedPassword });
     await user.save();
     
-    const token = jwt.sign({ _id: user._id }, 'your_jwt_secret');
+    const token = jwt.sign({ _id: user._id }, 'a-string-secret-at-least-256-bits-long');
     res.status(201).json({ user, token });
   } catch (error) {
+    console.error('Signup error:', error);
     res.status(400).json({ error: 'Failed to create account' });
   }
 });
 
-app.post('/api/auth/Login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
+    console.log('Login attempt received:', { email: req.body.email });
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) {
+      console.log('User not found:', { email });
       return res.status(401).json({ error: 'Invalid login credentials' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match:', { isMatch });
+    
     if (!isMatch) {
+      console.log('Invalid password for user:', { email });
       return res.status(401).json({ error: 'Invalid login credentials' });
     }
 
     const token = jwt.sign({ _id: user._id }, 'a-string-secret-at-least-256-bits-long');
-    res.json({ user, token });
+    console.log('Login successful:', { userId: user._id });
+    
+    // Return user data without password
+    const userData = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      city: user.city
+    };
+
+    res.json({ user: userData, token });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(400).json({ error: 'Failed to login' });
+  }
+});
+
+// Get Current User
+app.get('/api/auth/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Failed to fetch user data' });
+  }
+});
+
+// Get All Recommendations
+app.get('/api/recommendations', async (req, res) => {
+  try {
+    const recommendations = await Recommendation.find()
+      .populate('userId', 'username email')
+      .sort({ createdAt: -1 });
+    res.json(recommendations);
+  } catch (error) {
+    console.error('Error fetching recommendations:', error);
+    res.status(500).json({ error: 'Failed to fetch recommendations' });
+  }
+});
+
+// Create Recommendation (Protected)
+app.post('/api/recommendations', auth, async (req, res) => {
+  try {
+    const { type, title, description } = req.body;
+    
+    if (!type || !title || !description) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    const recommendation = new Recommendation({
+      userId: req.user._id,
+      type,
+      title,
+      description
+    });
+
+    await recommendation.save();
+    
+    const populatedRecommendation = await Recommendation.findById(recommendation._id)
+      .populate('userId', 'username email');
+
+    res.status(201).json(populatedRecommendation);
+  } catch (error) {
+    console.error('Error creating recommendation:', error);
+    res.status(500).json({ error: 'Failed to create recommendation' });
   }
 });
 

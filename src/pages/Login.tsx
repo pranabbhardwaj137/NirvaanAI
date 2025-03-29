@@ -14,10 +14,11 @@ function Login() {
     setError(''); // Reset error state before attempting login
 
     try {
-      await login(email, password); // Attempt to log in
-      navigate('/'); // Redirect to home page on successful login
-    } catch (err) {
-      setError(err.message); // Set error message on failure
+      await login(email, password);
+      // Force a full page reload to ensure state is updated
+      window.location.href = '/';
+    } catch (err: any) {
+      setError(err.message || 'Failed to login'); // Set error message on failure
     }
   };
 

@@ -64,7 +64,7 @@ function Home({ setShowChat }: HomeProps) {
                 <span>Talk to Nirvaan</span>
               </Link>
               <Link 
-                to="/recommended"
+                to="/recommendations"
                 className="flex items-center space-x-2 bg-stress-dark border-2 border-stress-yellow text-stress-yellow px-8 py-3 rounded-full hover:bg-stress-yellow hover:text-stress-dark transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
               >
                 <Users className="w-5 h-5" />
