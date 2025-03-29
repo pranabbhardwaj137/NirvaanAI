@@ -59,7 +59,7 @@ function Services() {
               Reconnect with your body through guided movement sessions. Our physical therapy combines stress relief with gentle exercise.
             </p>
             <button 
-              onClick={() => navigate('/physical-therapy')}
+              onClick={() => navigate('/services/physical')}
               className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
             >
               Learn More

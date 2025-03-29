@@ -13,6 +13,7 @@ import DoctorConsultation from './pages/DoctorConsultation';
 import ChatWithNirvaan from './pages/ChatWithNirvaan';
 import LaughingTherapy from './pages/LaughingTherapy';
 import ReadingTherapy from './pages/ReadingTherapy';
+import PhysicalTherapy from './pages/PhysicalTherapy';
 
 function App() {
   const { user, logout } = useAuth();
@@ -38,9 +39,7 @@ function App() {
                 <div className={`absolute top-full left-0 mt-2 w-48 bg-black border border-yellow-500/20 rounded-lg shadow-lg transition-all duration-200 ${isServicesOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
                   <div className="py-2">
                     <Link to="/services/audio" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Audio Therapy</Link>
-                    <Link to="/services/video" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Video Therapy</Link>
-                    <Link to="/services/chat" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Chat Therapy</Link>
-                    <Link to="/services/meditation" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Meditation</Link>
+                    <Link to="/services/physical" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Physical Therapy</Link>
                     <Link to="/services/laughing" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Laughing Therapy</Link>
                     <Link to="/services/reading" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Reading Therapy</Link>
                     <Link to="/doctor-consultation" className="block px-4 py-2 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-400 transition-colors">Doctor Consultation</Link>
@@ -101,9 +100,7 @@ function App() {
             <Route path="/" element={<Home setShowChat={setShowChat} />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/audio" element={<AudioTherapy />} />
-            <Route path="/services/video" element={<Services />} />
-            <Route path="/services/chat" element={<Services />} />
-            <Route path="/services/meditation" element={<Services />} />
+            <Route path="/services/physical" element={<PhysicalTherapy />} />
             <Route path="/services/laughing" element={<LaughingTherapy />} />
             <Route path="/services/reading" element={<ReadingTherapy />} />
             <Route path="/login" element={<Login />} />
