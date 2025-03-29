@@ -77,7 +77,7 @@ function Services() {
               Experience the joy of laughter yoga and group sessions. Release stress and boost your mood naturally through the power of laughter.
             </p>
             <button 
-              onClick={() => navigate('/laughing-therapy')}
+              onClick={() => navigate('/services/laughing')}
               className="w-full px-6 py-3 rounded-full bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-600 transition-colors duration-300 mt-auto flex items-center justify-center gap-2"
             >
               Learn More
