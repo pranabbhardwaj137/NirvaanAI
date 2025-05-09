@@ -30,6 +30,8 @@ function ChatWithNirvaan() {
   const [isListening, setIsListening] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [typingMessage, setTypingMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const speechSynthesis = window.speechSynthesis;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -52,8 +54,22 @@ function ChatWithNirvaan() {
       const availableVoices = speechSynthesis.getVoices();
       setVoices(availableVoices);
       
-      // Try to find a female English voice
-      const preferredVoice = availableVoices.find(
+      // Try to find preferred voices in order of preference
+      const preferredVoices = [
+        'Google US English',
+        'Google UK English Female',
+        'Microsoft Aria Online (Natural)',
+        'Microsoft Jenny Online (Natural)',
+        'Samantha',
+        'Daniel',
+        'Moira',
+        'Microsoft Zira Desktop',
+        'Google UK English Male'
+      ];
+      
+      const preferredVoice = availableVoices.find(voice => 
+        preferredVoices.includes(voice.name)
+      ) || availableVoices.find(
         voice => voice.lang.includes('en') && voice.name.includes('Female')
       ) || availableVoices.find(
         voice => voice.lang.includes('en')
@@ -78,9 +94,11 @@ function ChatWithNirvaan() {
     if (speechSynthesis && selectedVoice) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.voice = selectedVoice;
-      utterance.rate = 0.9;  // Slightly slower rate for more natural speech
-      utterance.pitch = 1.1; // Slightly higher pitch
       utterance.volume = 1.0;
+      
+      // Add slight pauses at punctuation for more natural speech
+      const processedText = text.replace(/([.,!?])/g, '$1 ');
+      utterance.text = processedText;
       
       utterance.onend = () => setIsSpeaking(false);
       speechSynthesis.speak(utterance);
@@ -167,6 +185,38 @@ function ChatWithNirvaan() {
     }
   };
 
+  const typewriterEffect = (text: string, onComplete: () => void) => {
+    let index = 0;
+    setIsTyping(true);
+    setTypingMessage('');
+
+    // Start speech synthesis immediately
+    setIsSpeaking(true);
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = selectedVoice;
+    utterance.volume = 1.0;
+    
+    // Add slight pauses at punctuation for more natural speech
+    const processedText = text.replace(/([.,!?])/g, '$1 ');
+    utterance.text = processedText;
+    
+    utterance.onend = () => setIsSpeaking(false);
+    speechSynthesis.speak(utterance);
+
+    const type = () => {
+      if (index < text.length) {
+        setTypingMessage(prev => prev + text[index]);
+        index++;
+        setTimeout(type, 30); // Adjust speed here (lower = faster)
+      } else {
+        setIsTyping(false);
+        onComplete();
+      }
+    };
+
+    type();
+  };
+
   const handleSend = async () => {
     if (input.trim() === '') return;
 
@@ -182,10 +232,23 @@ function ChatWithNirvaan() {
         content: msg.text
       }));
 
+      // Try llama3 first, fall back to llama2 if not available
+      let model = "llama3";
+      try {
+        // Test if llama3 is available
+        await axios.post(OLLAMA_API_URL, {
+          model: "llama3",
+          prompt: "test",
+          stream: false
+        });
+      } catch {
+        model = "llama2";
+      }
+
       const response = await axios.post(
         OLLAMA_API_URL,
         {
-          model: "llama2",
+          model: model,
           prompt: `You are Nirvaan, a compassionate AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone. Help users with stress management, anxiety, depression, and general mental health concerns.
 
 Previous conversation:
@@ -199,15 +262,15 @@ Assistant:`,
       );
 
       const botReply = response.data.response || "I'm here to assist you!";
-      setMessages(prev => [...prev, { 
-        text: botReply, 
-        sender: "bot",
-        timestamp: new Date()
-      }]);
-
-      // Speak the bot's reply
-      setIsSpeaking(true);
-      speak(botReply);
+      
+      // Start typewriter effect with simultaneous speech
+      typewriterEffect(botReply, () => {
+        setMessages(prev => [...prev, { 
+          text: botReply, 
+          sender: "bot",
+          timestamp: new Date()
+        }]);
+      });
 
     } catch (error: any) {
       console.error("Error fetching AI response:", error);
@@ -218,11 +281,13 @@ Assistant:`,
         errorMessage = error.response.data?.error?.message || errorMessage;
       }
 
-      setMessages(prev => [...prev, { 
-        text: errorMessage, 
-        sender: "bot",
-        timestamp: new Date()
-      }]);
+      typewriterEffect(errorMessage, () => {
+        setMessages(prev => [...prev, { 
+          text: errorMessage, 
+          sender: "bot",
+          timestamp: new Date()
+        }]);
+      });
     } finally {
       setIsLoading(false);
     }
@@ -261,6 +326,7 @@ Assistant:`,
                     if (voice) setSelectedVoice(voice);
                   }}
                   className="px-3 py-1 rounded-full bg-black/40 border border-white/20 text-white focus:outline-none focus:border-stress-yellow"
+                  aria-label="Select voice"
                 >
                   {voices.map((voice) => (
                     <option key={voice.name} value={voice.name}>
@@ -308,8 +374,15 @@ Assistant:`,
                 <div className="bg-black/40 text-white rounded-2xl p-4 backdrop-blur-sm">
                   <div className="flex space-x-2">
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Nirvaan is typing...</span>
+                    <span>Nirvaan is thinking...</span>
                   </div>
+                </div>
+              </div>
+            )}
+            {isTyping && !isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-black/40 text-white rounded-2xl p-4 backdrop-blur-sm">
+                  <p className="whitespace-pre-wrap">{typingMessage}</p>
                 </div>
               </div>
             )}

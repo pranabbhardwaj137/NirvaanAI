@@ -20,27 +20,27 @@ const questions: Question[] = [
   {
     id: 1,
     text: "How are you feeling today?",
-    options: ["Very Happy", "Happy", "Neutral", "Sad", "Very Sad"]
+    options: ["Very Sad", "Sad", "Neutral", "Happy", "Very Happy"]
   },
   {
     id: 2,
     text: "How would you rate your energy level?",
-    options: ["Very High", "High", "Moderate", "Low", "Very Low"]
+    options: ["Very Low", "Low", "Moderate", "High", "Very High"]
   },
   {
     id: 3,
     text: "How well did you sleep last night?",
-    options: ["Very Well", "Well", "Okay", "Poorly", "Very Poorly"]
+    options: ["Very Poorly", "Poorly", "Okay", "Well", "Very Well"]
   },
   {
     id: 4,
     text: "How is your stress level?",
-    options: ["Very Low", "Low", "Moderate", "High", "Very High"]
+    options: ["Very High", "High", "Moderate", "Low", "Very Low"]
   },
   {
     id: 5,
     text: "How would you rate your productivity today?",
-    options: ["Very High", "High", "Moderate", "Low", "Very Low"]
+    options: ["Very Low", "Low", "Moderate", "High", "Very High"]
   }
 ];
 
