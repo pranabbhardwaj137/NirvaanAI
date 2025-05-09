@@ -20,6 +20,8 @@ import CreateRecommendation from './pages/CreateRecommendation';
 import CreateEvent from './pages/CreateEvent';
 import Notifications from './components/Notifications';
 import ProfilePage from './pages/ProfilePage';
+import { SocketProvider } from './context/SocketContext';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function AppContent() {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
@@ -152,11 +154,15 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <SocketProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </SocketProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

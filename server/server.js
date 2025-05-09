@@ -4,10 +4,20 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["http://localhost:5173", "https://nirvaanai-i5fq.onrender.com"], // Add your frontend URLs
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
 
 app.use(cors());
 app.use(express.json());
@@ -237,6 +247,9 @@ app.post('/api/events', auth, async (req, res) => {
     const populatedEvent = await Event.findById(event._id)
       .populate('creatorId', 'username email');
 
+    // Emit the new event to all connected clients
+    io.emit('newEvent', populatedEvent);
+
     res.status(201).json(populatedEvent);
   } catch (error) {
     console.error('Error creating event:', error);
@@ -302,6 +315,9 @@ app.post('/api/events/:eventId/join', auth, async (req, res) => {
 
     await notification.save();
 
+    // Emit the new notification to the event creator
+    io.emit(`notification:${event.creatorId}`, notification);
+
     res.status(201).json(participant);
   } catch (error) {
     console.error('Error joining event:', error);
@@ -347,13 +363,20 @@ app.put('/api/events/:eventId/participants/:participantId', auth, async (req, re
 
     await notification.save();
 
+    // Emit the notification to the participant
+    io.emit(`notification:${participant.userId}`, notification);
+
     // Update event participant count if accepted
     if (status === 'accepted') {
+      if (event.currentParticipants >= event.maxParticipants) {
+        return res.status(400).json({ error: 'Event is already full' });
+      }
       event.currentParticipants += 1;
       if (event.currentParticipants >= event.maxParticipants) {
         event.status = 'full';
       }
       await event.save();
+      io.emit('eventUpdated', event);
     }
 
     res.json(participant);
@@ -425,7 +448,17 @@ app.put('/api/notifications/:notificationId/read', auth, async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
+// Update the server to use httpServer instead of app
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

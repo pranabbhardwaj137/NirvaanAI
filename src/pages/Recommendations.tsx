@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
 
 interface Recommendation {
   _id: string;
@@ -50,6 +51,7 @@ function Recommendations() {
   const [error, setError] = useState('');
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const { user } = useAuth();
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (user) {
@@ -60,6 +62,40 @@ function Recommendations() {
       setLoading(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (socket) {
+      // Listen for new events
+      socket.on('newEvent', (event) => {
+        setEvents(prev => [...prev, event]);
+      });
+
+      // Listen for event updates
+      socket.on('eventUpdated', (updatedEvent) => {
+        setEvents(prev => prev.map(event => 
+          event._id === updatedEvent._id ? updatedEvent : event
+        ));
+        setMyEvents(prev => ({
+          ...prev,
+          created: prev.created.map(event => 
+            event._id === updatedEvent._id ? updatedEvent : event
+          )
+        }));
+      });
+
+      // Listen for notifications
+      socket.on(`notification:${user?._id}`, (notification) => {
+        // You can implement a notification system here
+        console.log('New notification:', notification);
+      });
+
+      return () => {
+        socket.off('newEvent');
+        socket.off('eventUpdated');
+        socket.off(`notification:${user?._id}`);
+      };
+    }
+  }, [socket, user]);
 
   const fetchRecommendations = async () => {
     try {
@@ -101,8 +137,8 @@ function Recommendations() {
       await axios.post(`https://nirvaanai-i5fq.onrender.com/api/events/${eventId}/join`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchEvents();
-      fetchMyEvents();
+      // Refresh both events and myEvents to show updated state
+      await Promise.all([fetchEvents(), fetchMyEvents()]);
     } catch (error) {
       console.error('Error joining event:', error);
     }
@@ -184,7 +220,7 @@ function Recommendations() {
             <div className="mb-8">
               <h3 className="text-xl mb-4 text-white">Events I Created</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {myEvents.created.map((event) => (
+                {myEvents.created?.map((event) => (
                   <div key={event._id} className="bg-gray-900 rounded-lg p-6 border border-yellow-500/20">
                     <h4 className="text-white font-semibold mb-2">{event.title}</h4>
                     <p className="text-gray-400 mb-4">{event.description}</p>
@@ -198,13 +234,13 @@ function Recommendations() {
                     
                     {/* Pending Requests */}
                     {myEvents.joined
-                      .filter(participant => 
-                        participant.eventId._id === event._id && 
-                        participant.status === 'pending'
+                      ?.filter(participant => 
+                        participant?.eventId?._id === event._id && 
+                        participant?.status === 'pending'
                       )
                       .map(participant => (
                         <div key={participant._id} className="mt-4 p-4 bg-gray-800 rounded-lg">
-                          <p className="mb-2">{participant.userId.username} wants to join</p>
+                          <p className="mb-2">{participant?.userId?.username} wants to join</p>
                           <div className="flex space-x-2">
                             <button
                               onClick={() => handleAcceptRejectRequest(event._id, participant._id, 'accepted')}
@@ -231,17 +267,17 @@ function Recommendations() {
               <h3 className="text-white mb-4">Events I Joined</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {myEvents.joined
-                  .filter(participant => participant.status === 'accepted')
+                  ?.filter(participant => participant?.status === 'accepted')
                   .map(participant => (
                     <div key={participant._id} className="bg-gray-900 rounded-lg p-6 border border-yellow-500/20">
-                      <h4 className="text-white font-semibold mb-2">{participant.eventId.title}</h4>
-                      <p className="text-gray-400 mb-4">{participant.eventId.description}</p>
+                      <h4 className="text-white font-semibold mb-2">{participant?.eventId?.title}</h4>
+                      <p className="text-gray-400 mb-4">{participant?.eventId?.description}</p>
                       <div className="space-y-2">
-                        <p><span className="text-yellow-500">Sport:</span> <span className="text-white">{participant.eventId.sport}</span></p>
-                        <p><span className="text-yellow-500">Date:</span> <span className="text-white">{new Date(participant.eventId.date).toLocaleDateString()}</span></p>
-                        <p><span className="text-yellow-500">Duration:</span> <span className="text-white">{participant.eventId.duration} minutes</span></p>
-                        <p><span className="text-yellow-500">Location:</span> <span className="text-white">{participant.eventId.location}</span></p>
-                        <p><span className="text-yellow-500">Participants:</span> <span className="text-white">{participant.eventId.currentParticipants}/{participant.eventId.maxParticipants}</span></p>
+                        <p><span className="text-yellow-500">Sport:</span> <span className="text-white">{participant?.eventId?.sport}</span></p>
+                        <p><span className="text-yellow-500">Date:</span> <span className="text-white">{new Date(participant?.eventId?.date).toLocaleDateString()}</span></p>
+                        <p><span className="text-yellow-500">Duration:</span> <span className="text-white">{participant?.eventId?.duration} minutes</span></p>
+                        <p><span className="text-yellow-500">Location:</span> <span className="text-white">{participant?.eventId?.location}</span></p>
+                        <p><span className="text-yellow-500">Participants:</span> <span className="text-white">{participant?.eventId?.currentParticipants}/{participant?.eventId?.maxParticipants}</span></p>
                       </div>
                     </div>
                   ))}
@@ -277,6 +313,34 @@ function Recommendations() {
                 {event.status === 'full' && (
                   <p className="mt-4 text-red-500">Event is full</p>
                 )}
+                {event.status === 'open' && event.currentParticipants >= event.maxParticipants && (
+                  <p className="mt-4 text-red-500">Event is full</p>
+                )}
+                {/* Pending Requests for Host */}
+                {user && event.creatorId._id === user._id && myEvents.joined
+                  ?.filter(participant => 
+                    participant?.eventId?._id === event._id && 
+                    participant?.status === 'pending'
+                  )
+                  .map(participant => (
+                    <div key={participant._id} className="mt-4 p-4 bg-gray-800 rounded-lg">
+                      <p className="mb-2 text-white">{participant?.userId?.username} wants to join</p>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleAcceptRejectRequest(event._id, participant._id, 'accepted')}
+                          className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => handleAcceptRejectRequest(event._id, participant._id, 'rejected')}
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
               </div>
             ))}
           </div>
