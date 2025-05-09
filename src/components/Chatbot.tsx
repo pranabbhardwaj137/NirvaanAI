@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { X } from "lucide-react";
+import { X, Send } from "lucide-react";
 
 interface ChatbotProps {
   showChat: boolean;
@@ -9,44 +9,57 @@ interface ChatbotProps {
 
 const Chatbot: React.FC<ChatbotProps> = ({ showChat, setShowChat }) => {
   const [messages, setMessages] = useState<{ text: string; sender: "bot" | "user" }[]>([
-    { text: "Hi! I'm Nirvaan. How can I help you?", sender: "bot" },
+    { text: "Hi! I'm Nirvaan. How can I help you today?", sender: "bot" },
   ]);
   const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app/api/chat";
+  const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app";
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSend = async () => {
-    if (input.trim() === "") return;
+    if (input.trim() === "" || isLoading) return;
 
-    setMessages([...messages, { text: input, sender: "user" }]);
+    const userMessage = input.trim();
+    setMessages(prev => [...prev, { text: userMessage, sender: "user" }]);
     setIsLoading(true);
+    setInput("");
 
     try {
-      // Prepare the conversation history
-      const conversationHistory = messages.map(msg => ({
-        role: msg.sender === "user" ? "user" : "assistant",
-        content: msg.text
-      }));
-
       const response = await axios.post(
-        OLLAMA_API_URL,
+        `${OLLAMA_API_URL}/api/generate`,
         {
           model: "llama2",
           prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone.
 
 Previous conversation:
-${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+${messages.map(msg => `${msg.sender === "user" ? "User" : "Assistant"}: ${msg.text}`).join('\n')}
 
-User: ${input}
+User: ${userMessage}
 
 Assistant:`,
           stream: false
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+          timeout: 30000
         }
       );
 
-      const botReply = response.data.response || "I'm here to assist you!";
-      setMessages((prev) => [...prev, { text: botReply, sender: "bot" }]);
+      console.log('API Response:', response.data);
+      const botReply = response.data.response?.trim() || "I'm here to assist you!";
+      setMessages(prev => [...prev, { text: botReply, sender: "bot" }]);
 
     } catch (error: any) {
       console.error("Error fetching AI response:", error);
@@ -54,13 +67,16 @@ Assistant:`,
 
       if (error.response) {
         console.error("API Error:", error.response.data);
-        errorMessage = error.response.data?.error?.message || errorMessage;
+        errorMessage = error.response.data?.error || errorMessage;
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = "The request took too long to complete. Please try again.";
+      } else if (error.code === 'ERR_NETWORK') {
+        errorMessage = "Cannot connect to the AI server. Please check if the server is running.";
       }
 
-      setMessages((prev) => [...prev, { text: errorMessage, sender: "bot" }]);
+      setMessages(prev => [...prev, { text: errorMessage, sender: "bot" }]);
     } finally {
       setIsLoading(false);
-      setInput("");
     }
   };
 
@@ -113,6 +129,7 @@ Assistant:`,
             </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="p-4 border-t border-gray-700 bg-stress-gray/95">
@@ -124,14 +141,14 @@ Assistant:`,
             onKeyPress={handleKeyPress}
             disabled={isLoading}
             className="flex-1 px-4 py-2 rounded-lg bg-stress-dark/95 border border-gray-600 text-white focus:outline-none focus:border-stress-yellow disabled:opacity-50"
-            placeholder="Type your message..."
+            placeholder={isLoading ? "Nirvaan is typing..." : "Type your message..."}
           />
           <button
             onClick={handleSend}
-            disabled={isLoading}
-            className="bg-stress-yellow text-stress-dark px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all disabled:opacity-50"
+            disabled={isLoading || input.trim() === ""}
+            className="bg-stress-yellow text-stress-dark px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all disabled:opacity-50 flex items-center justify-center"
           >
-            Send
+            <Send className="w-5 h-5" />
           </button>
         </div>
       </div>
