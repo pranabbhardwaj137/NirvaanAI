@@ -36,8 +36,7 @@ function ChatWithNirvaan() {
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
   const [recognitionTimeout, setRecognitionTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-  const API_URL = "https://api.openai.com/v1/chat/completions";
+  const OLLAMA_API_URL = "http://localhost:11434/api/generate";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -171,48 +170,35 @@ function ChatWithNirvaan() {
   const handleSend = async () => {
     if (input.trim() === '') return;
 
-    if (!API_KEY) {
-      console.error("API Key is missing! Check your .env file.");
-      setMessages(prev => [...prev, { 
-        text: "Configuration error: API key is missing.", 
-        sender: "bot",
-        timestamp: new Date()
-      }]);
-      return;
-    }
-
     const userMessage = { text: input, sender: 'user' as const, timestamp: new Date() };
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
     setInput('');
 
     try {
+      // Prepare the conversation history
+      const conversationHistory = messages.map(msg => ({
+        role: msg.sender === "user" ? "user" : "assistant",
+        content: msg.text
+      }));
+
       const response = await axios.post(
-        API_URL,
+        OLLAMA_API_URL,
         {
-          model: "gpt-4",
-          messages: [
-            {
-              role: "system",
-              content: "You are Nirvaan, a compassionate AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone. Help users with stress management, anxiety, depression, and general mental health concerns."
-            },
-            ...messages.map(msg => ({
-              role: msg.sender === "user" ? "user" : "assistant",
-              content: msg.text
-            })),
-            { role: "user", content: input }
-          ],
-          temperature: 0.7,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${API_KEY}`,
-          },
+          model: "llama2",
+          prompt: `You are Nirvaan, a compassionate AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone. Help users with stress management, anxiety, depression, and general mental health concerns.
+
+Previous conversation:
+${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+
+User: ${input}
+
+Assistant:`,
+          stream: false
         }
       );
 
-      const botReply = response.data.choices?.[0]?.message?.content || "I'm here to assist you!";
+      const botReply = response.data.response || "I'm here to assist you!";
       setMessages(prev => [...prev, { 
         text: botReply, 
         sender: "bot",
