@@ -34,9 +34,11 @@ const Chatbot: React.FC<ChatbotProps> = ({ showChat, setShowChat }) => {
     setInput("");
 
     try {
-      const response = await axios.post(
-        `${OLLAMA_API_URL}/api/generate`,
-        {
+      console.log('Sending request to:', `${OLLAMA_API_URL}/api/generate`);
+      const response = await axios({
+        method: 'post',
+        url: `${OLLAMA_API_URL}/api/generate`,
+        data: {
           model: "llama2",
           prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone.
 
@@ -48,21 +50,28 @@ User: ${userMessage}
 Assistant:`,
           stream: false
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          },
-          timeout: 30000
-        }
-      );
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type'
+        },
+        timeout: 30000
+      });
 
       console.log('API Response:', response.data);
       const botReply = response.data.response?.trim() || "I'm here to assist you!";
       setMessages(prev => [...prev, { text: botReply, sender: "bot" }]);
 
     } catch (error: any) {
-      console.error("Error fetching AI response:", error);
+      console.error("Error details:", {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+
       let errorMessage = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
 
       if (error.response) {
@@ -71,7 +80,7 @@ Assistant:`,
       } else if (error.code === 'ECONNABORTED') {
         errorMessage = "The request took too long to complete. Please try again.";
       } else if (error.code === 'ERR_NETWORK') {
-        errorMessage = "Cannot connect to the AI server. Please check if the server is running.";
+        errorMessage = "Cannot connect to the AI server. Please check if the server is running and accessible.";
       }
 
       setMessages(prev => [...prev, { text: errorMessage, sender: "bot" }]);
