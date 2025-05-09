@@ -38,7 +38,7 @@ function ChatWithNirvaan() {
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
   const [recognitionTimeout, setRecognitionTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app";
+  const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app/api/chat";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

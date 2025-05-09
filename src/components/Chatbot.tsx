@@ -14,7 +14,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ showChat, setShowChat }) => {
   const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app";
+  const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app/api/chat";
 
   const handleSend = async () => {
     if (input.trim() === "") return;
