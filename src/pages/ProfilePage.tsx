@@ -24,6 +24,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import CalendarComponent from '../components/Calendar';
 
 ChartJS.register(
   CategoryScale,
@@ -156,132 +157,118 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-stress-dark py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Profile Header */}
-        <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/20">
-          <div className="flex items-center space-x-6">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                <User className="w-12 h-12 text-yellow-500" />
-              </div>
-              <button className="absolute bottom-0 right-0 bg-yellow-500 text-black p-2 rounded-full hover:bg-yellow-400 transition-colors">
-                <Settings className="w-4 h-4" />
-              </button>
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">{profileData.username}</h1>
-              <p className="text-yellow-500/80">{profileData.email}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-black/40 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/20">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-yellow-500/20 rounded-lg">
-                <Activity className="w-6 h-6 text-yellow-500" />
-              </div>
-              <div>
-                <p className="text-sm text-yellow-500/80">Total Sessions</p>
-                <p className="text-2xl font-bold text-white">{profileData.totalSessions}</p>
-              </div>
-            </div>
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Calendar */}
+          <div className="lg:col-span-1">
+            <CalendarComponent />
           </div>
 
-          <div className="bg-black/40 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/20">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-yellow-500/20 rounded-lg">
-                <Heart className="w-6 h-6 text-yellow-500" />
-              </div>
-              <div>
-                <p className="text-sm text-yellow-500/80">Favorite Therapy</p>
-                <p className="text-2xl font-bold text-white">{profileData.favoriteTherapy}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-black/40 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/20">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-yellow-500/20 rounded-lg">
-                <Calendar className="w-6 h-6 text-yellow-500" />
-              </div>
-              <div>
-                <p className="text-sm text-yellow-500/80">Member Since</p>
-                <p className="text-2xl font-bold text-white">{profileData.joinDate}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-black/40 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/20">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-yellow-500/20 rounded-lg">
-                <Clock className="w-6 h-6 text-yellow-500" />
-              </div>
-              <div>
-                <p className="text-sm text-yellow-500/80">Last Active</p>
-                <p className="text-2xl font-bold text-white">{profileData.lastActive}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Sentiscope History */}
-        <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/20">
-          <h2 className="text-xl font-bold text-white mb-6">Sentiscope History</h2>
-          <div className="space-y-6">
-            <div className="bg-black/20 rounded-xl p-6">
-              <div className="h-64">
-                {assessmentHistory.length > 0 ? (
-                  <Line data={moodHistory} options={options} />
-                ) : (
-                  <div className="h-full flex items-center justify-center text-white/70">
-                    No mood assessment history available yet.
+          {/* Right Column - Profile Content */}
+          <div className="lg:col-span-2">
+            {/* Profile Header */}
+            <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/20">
+              <div className="flex items-center space-x-6">
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                    <User className="w-12 h-12 text-yellow-500" />
                   </div>
-                )}
+                  <button className="absolute bottom-0 right-0 bg-yellow-500 text-black p-2 rounded-full hover:bg-yellow-400 transition-colors">
+                    <Settings className="w-4 h-4" />
+                  </button>
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">{profileData.username}</h1>
+                  <p className="text-yellow-500/80">{profileData.email}</p>
+                </div>
               </div>
             </div>
-            <div className="bg-black/20 rounded-xl p-6">
-              <div className="flex items-center space-x-3 mb-3">
-                <TrendingUp className="w-5 h-5 text-yellow-500" />
-                <h3 className="text-lg font-semibold text-white">Mood Analysis</h3>
-              </div>
-              <p className="text-white/90 leading-relaxed">
-                {generateMoodAnalysis()}
-              </p>
-            </div>
-          </div>
-        </div>
 
-        {/* Recent Activity */}
-        <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/20">
-          <h2 className="text-xl font-bold text-white mb-6">Recent Activity</h2>
-          <div className="space-y-4">
-            {assessmentHistory.slice(-3).reverse().map((result, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-black/20 rounded-lg hover:bg-black/30 transition-colors">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="bg-black/40 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/20">
                 <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <Activity className="w-5 h-5 text-yellow-500" />
+                  <div className="p-3 bg-yellow-500/20 rounded-lg">
+                    <Activity className="w-6 h-6 text-yellow-500" />
                   </div>
                   <div>
-                    <p className="text-white">Mood Assessment - {result.score}%</p>
-                    <p className="text-sm text-yellow-500/80">{new Date(result.date).toLocaleDateString()}</p>
+                    <p className="text-sm text-yellow-500/80">Total Sessions</p>
+                    <p className="text-2xl font-bold text-white">{profileData.totalSessions}</p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-yellow-500/60" />
               </div>
-            ))}
+
+              <div className="bg-black/40 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/20">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-yellow-500/20 rounded-lg">
+                    <Heart className="w-6 h-6 text-yellow-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-yellow-500/80">Favorite Therapy</p>
+                    <p className="text-2xl font-bold text-white">{profileData.favoriteTherapy}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sentiscope History */}
+            <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/20">
+              <h2 className="text-xl font-bold text-white mb-6">Sentiscope History</h2>
+              <div className="space-y-6">
+                <div className="bg-black/20 rounded-xl p-6">
+                  <div className="h-64">
+                    {assessmentHistory.length > 0 ? (
+                      <Line data={moodHistory} options={options} />
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-white/70">
+                        No mood assessment history available yet.
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="bg-black/20 rounded-xl p-6">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <TrendingUp className="w-5 h-5 text-yellow-500" />
+                    <h3 className="text-lg font-semibold text-white">Mood Analysis</h3>
+                  </div>
+                  <p className="text-white/90 leading-relaxed">
+                    {generateMoodAnalysis()}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/20">
+              <h2 className="text-xl font-bold text-white mb-6">Recent Activity</h2>
+              <div className="space-y-4">
+                {assessmentHistory.slice(-3).reverse().map((result, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-black/20 rounded-lg hover:bg-black/30 transition-colors">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-2 bg-yellow-500/20 rounded-lg">
+                        <Activity className="w-5 h-5 text-yellow-500" />
+                      </div>
+                      <div>
+                        <p className="text-white">Mood Assessment - {result.score}%</p>
+                        <p className="text-sm text-yellow-500/80">{new Date(result.date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-yellow-500/60" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center space-x-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 px-6 py-3 rounded-xl transition-colors border border-red-500/20"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
-
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center justify-center space-x-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 px-6 py-3 rounded-xl transition-colors border border-red-500/20"
-        >
-          <LogOut className="w-5 h-5" />
-          <span>Logout</span>
-        </button>
       </div>
     </div>
   );
