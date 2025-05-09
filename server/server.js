@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://Kopiko:workzap1234@workzap.glrfvhu.mongodb.net/?retryWrites=true&w=majority&appName=Workzap')
+mongoose.connect(NirvaanDB)
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
