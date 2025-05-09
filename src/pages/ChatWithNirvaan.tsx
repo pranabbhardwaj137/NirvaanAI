@@ -58,8 +58,7 @@ function ChatWithNirvaan() {
   };
 
   const stopSpeaking = () => {
-    // Note: We can't directly stop the audio playback with the current implementation
-    // You might want to add a way to stop the audio in the TTSService
+    ttsService.stopAudio();
     setIsSpeaking(false);
   };
 
@@ -154,7 +153,7 @@ function ChatWithNirvaan() {
       const response = await axios.post(
         OLLAMA_API_URL,
         {
-          model: "llama2",
+          model: "llama2:3b",
           prompt: `You are Nirvaan, a compassionate AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone. Help users with stress management, anxiety, depression, and general mental health concerns.
 
 Previous conversation:

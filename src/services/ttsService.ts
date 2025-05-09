@@ -5,9 +5,12 @@ const DIA_API_URL = 'https://api-inference.huggingface.co/models/nari-labs/Dia-1
 export class TTSService {
   private static instance: TTSService;
   private apiKey: string;
+  private currentAudioSource: AudioBufferSourceNode | null = null;
+  private audioContext: AudioContext | null = null;
 
   private constructor() {
     this.apiKey = process.env.REACT_APP_HUGGINGFACE_API_KEY || '';
+    this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
 
   public static getInstance(): TTSService {
@@ -39,11 +42,44 @@ export class TTSService {
   }
 
   public async playAudio(audioBuffer: ArrayBuffer): Promise<void> {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const audioBufferSource = await audioContext.decodeAudioData(audioBuffer);
-    const source = audioContext.createBufferSource();
-    source.buffer = audioBufferSource;
-    source.connect(audioContext.destination);
-    source.start(0);
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+
+    try {
+      // Stop any currently playing audio
+      this.stopAudio();
+
+      const audioBufferSource = await this.audioContext.decodeAudioData(audioBuffer);
+      this.currentAudioSource = this.audioContext.createBufferSource();
+      this.currentAudioSource.buffer = audioBufferSource;
+      this.currentAudioSource.connect(this.audioContext.destination);
+      
+      // Add event listener for when audio ends
+      this.currentAudioSource.onended = () => {
+        this.currentAudioSource = null;
+      };
+
+      this.currentAudioSource.start(0);
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      throw error;
+    }
+  }
+
+  public stopAudio(): void {
+    if (this.currentAudioSource) {
+      try {
+        this.currentAudioSource.stop();
+        this.currentAudioSource.disconnect();
+        this.currentAudioSource = null;
+      } catch (error) {
+        console.error('Error stopping audio:', error);
+      }
+    }
+  }
+
+  public isPlaying(): boolean {
+    return this.currentAudioSource !== null;
   }
 } 
