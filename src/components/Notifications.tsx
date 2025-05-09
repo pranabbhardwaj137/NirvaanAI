@@ -29,7 +29,7 @@ const Notifications: React.FC = () => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/notifications', {
+      const response = await axios.get('https://nirvaanai-i5fq.onrender.com/api/notifications', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(response.data);
@@ -41,7 +41,7 @@ const Notifications: React.FC = () => {
   const markAsRead = async (notificationId: string) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/notifications/${notificationId}/read`, {}, {
+      await axios.put(`https://nirvaanai-i5fq.onrender.com/api/notifications/${notificationId}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(notifications.map(notification =>

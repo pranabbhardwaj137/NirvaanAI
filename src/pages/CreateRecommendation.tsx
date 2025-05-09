@@ -24,7 +24,7 @@ function CreateRecommendation() {
       }
 
       await axios.post(
-        'http://localhost:5000/api/recommendations',
+        'https://nirvaanai-i5fq.onrender.com/api/recommendations',
         { type, title, description },
         {
           headers: { Authorization: `Bearer ${token}` }

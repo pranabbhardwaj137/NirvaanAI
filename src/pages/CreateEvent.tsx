@@ -28,7 +28,7 @@ function CreateEvent() {
       }
 
       await axios.post(
-        'http://localhost:5000/api/events',
+        'https://nirvaanai-i5fq.onrender.com/api/events',
         {
           sport,
           title,

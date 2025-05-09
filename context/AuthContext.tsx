@@ -30,7 +30,7 @@
 
 //   const login = async (email: string, password: string) => {
 //     try {
-//       const response = await axios.post('http://localhost:5000/api/auth/Login', { 
+//       const response = await axios.post('https://nirvaanai-i5fq.onrender.com/api/auth/Login', { 
 //         email, 
 //         password 
 //       });
@@ -49,7 +49,7 @@
 
 //   const signup = async (username: string, email: string, password: string) => {
 //     try {
-//       const response = await axios.post('http://localhost:5000/api/auth/SignUp', {
+//       const response = await axios.post('https://nirvaanai-i5fq.onrender.com/api/auth/SignUp', {
 //         username,
 //         email,
 //         password
@@ -136,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<void> => {
     try {
       const response = await axios.post<AuthResponse>(
-        'http://localhost:5000/api/auth/Login',
+        'https://nirvaanai-i5fq.onrender.com/api/auth/Login',
         { email, password }
       );
       
@@ -156,7 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (username: string, email: string, city: string , password: string): Promise<void> => {
     try {
       const response = await axios.post<AuthResponse>(
-        'http://localhost:5000/api/auth/SignUp',
+        'https://nirvaanai-i5fq.onrender.com/api/auth/SignUp',
         { username, email, city ,password }
       );
 

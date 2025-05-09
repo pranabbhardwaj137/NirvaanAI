@@ -63,7 +63,7 @@ function Recommendations() {
 
   const fetchRecommendations = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/recommendations');
+      const response = await axios.get('https://nirvaanai-i5fq.onrender.com/api/recommendations');
       setRecommendations(response.data);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
@@ -73,7 +73,7 @@ function Recommendations() {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/events');
+      const response = await axios.get('https://nirvaanai-i5fq.onrender.com/api/events');
       setEvents(response.data);
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -86,7 +86,7 @@ function Recommendations() {
   const fetchMyEvents = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/events/my-events', {
+      const response = await axios.get('https://nirvaanai-i5fq.onrender.com/api/events/my-events', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMyEvents(response.data);
@@ -98,7 +98,7 @@ function Recommendations() {
   const handleJoinEvent = async (eventId: string) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/events/${eventId}/join`, {}, {
+      await axios.post(`https://nirvaanai-i5fq.onrender.com/api/events/${eventId}/join`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchEvents();
@@ -111,7 +111,7 @@ function Recommendations() {
   const handleAcceptRejectRequest = async (eventId: string, participantId: string, status: 'accepted' | 'rejected') => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/events/${eventId}/participants/${participantId}`, 
+      await axios.put(`https://nirvaanai-i5fq.onrender.com/api/events/${eventId}/participants/${participantId}`, 
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
