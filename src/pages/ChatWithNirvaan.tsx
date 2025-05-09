@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Send, Loader2, Volume2, VolumeX, Mic, MicOff } from 'lucide-react';
+import { TTSService } from '../services/ttsService';
 
 // Add TypeScript declarations for Web Speech API
 declare global {
@@ -28,13 +29,11 @@ function ChatWithNirvaan() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
-  const speechSynthesis = window.speechSynthesis;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
   const [recognitionTimeout, setRecognitionTimeout] = useState<NodeJS.Timeout | null>(null);
+  const ttsService = TTSService.getInstance();
 
   const OLLAMA_API_URL = "http://localhost:11434/api/generate";
 
@@ -46,52 +45,22 @@ function ChatWithNirvaan() {
     scrollToBottom();
   }, [messages]);
 
-  // Load available voices
-  useEffect(() => {
-    const loadVoices = () => {
-      const availableVoices = speechSynthesis.getVoices();
-      setVoices(availableVoices);
-      
-      // Try to find a female English voice
-      const preferredVoice = availableVoices.find(
-        voice => voice.lang.includes('en') && voice.name.includes('Female')
-      ) || availableVoices.find(
-        voice => voice.lang.includes('en')
-      ) || availableVoices[0];
-      
-      setSelectedVoice(preferredVoice);
-    };
-
-    // Load voices when they become available
-    if (speechSynthesis.getVoices().length > 0) {
-      loadVoices();
-    } else {
-      speechSynthesis.onvoiceschanged = loadVoices;
-    }
-
-    return () => {
-      speechSynthesis.onvoiceschanged = null;
-    };
-  }, [speechSynthesis]);
-
-  const speak = (text: string) => {
-    if (speechSynthesis && selectedVoice) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.voice = selectedVoice;
-      utterance.rate = 0.9;  // Slightly slower rate for more natural speech
-      utterance.pitch = 1.1; // Slightly higher pitch
-      utterance.volume = 1.0;
-      
-      utterance.onend = () => setIsSpeaking(false);
-      speechSynthesis.speak(utterance);
+  const speak = async (text: string) => {
+    try {
+      setIsSpeaking(true);
+      const audioBuffer = await ttsService.textToSpeech(text);
+      await ttsService.playAudio(audioBuffer);
+      setIsSpeaking(false);
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      setIsSpeaking(false);
     }
   };
 
   const stopSpeaking = () => {
-    if (speechSynthesis) {
-      speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
+    // Note: We can't directly stop the audio playback with the current implementation
+    // You might want to add a way to stop the audio in the TTSService
+    setIsSpeaking(false);
   };
 
   useEffect(() => {
@@ -207,7 +176,7 @@ Assistant:`,
 
       // Speak the bot's reply
       setIsSpeaking(true);
-      speak(botReply);
+      await speak(botReply);
 
     } catch (error: any) {
       console.error("Error fetching AI response:", error);
@@ -254,20 +223,6 @@ Assistant:`,
                 Chat with <span className="text-stress-yellow">Nirvaan AI</span>
               </h1>
               <div className="flex items-center space-x-4">
-                <select
-                  value={selectedVoice?.name || ''}
-                  onChange={(e) => {
-                    const voice = voices.find(v => v.name === e.target.value);
-                    if (voice) setSelectedVoice(voice);
-                  }}
-                  className="px-3 py-1 rounded-full bg-black/40 border border-white/20 text-white focus:outline-none focus:border-stress-yellow"
-                >
-                  {voices.map((voice) => (
-                    <option key={voice.name} value={voice.name}>
-                      {voice.name} ({voice.lang})
-                    </option>
-                  ))}
-                </select>
                 <button
                   onClick={isSpeaking ? stopSpeaking : () => speak(messages[messages.length - 1].text)}
                   className="p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
