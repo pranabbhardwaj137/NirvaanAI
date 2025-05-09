@@ -38,7 +38,7 @@ function ChatWithNirvaan() {
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
   const [recognitionTimeout, setRecognitionTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  const OLLAMA_API_URL = "http://growing-shiner-enough.ngrok-free.app/api/generate";
+  const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -226,68 +226,57 @@ function ChatWithNirvaan() {
     setInput('');
 
     try {
-      // Prepare the conversation history
-      const conversationHistory = messages.map(msg => ({
-        role: msg.sender === "user" ? "user" : "assistant",
-        content: msg.text
-      }));
-
-      // Try llama3 first, fall back to llama2 if not available
-      let model = "llama3";
-      try {
-        // Test if llama3 is available
-        await axios.post(OLLAMA_API_URL, {
-          model: "llama3",
-          prompt: "test",
-          stream: false
-        });
-      } catch {
-        model = "llama2";
-      }
-
-      const response = await axios.post(
-        OLLAMA_API_URL,
-        {
-          model: model,
-          prompt: `You are Nirvaan, a compassionate AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone. Help users with stress management, anxiety, depression, and general mental health concerns.
+      const response = await axios({
+        method: 'post',
+        url: `${OLLAMA_API_URL}/api/generate`,
+        data: {
+          model: "qwen2.5-coder",
+          prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone.
 
 Previous conversation:
-${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+${messages.map(msg => `${msg.sender === "user" ? "User" : "Assistant"}: ${msg.text}`).join('\n')}
 
 User: ${input}
 
 Assistant:`,
           stream: false
-        }
-      );
-
-      const botReply = response.data.response || "I'm here to assist you!";
-      
-      // Start typewriter effect with simultaneous speech
-      typewriterEffect(botReply, () => {
-        setMessages(prev => [...prev, { 
-          text: botReply, 
-          sender: "bot",
-          timestamp: new Date()
-        }]);
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 30000
       });
 
+      console.log('API Response:', response.data);
+      const botReply = response.data.response?.trim() || "I'm here to assist you!";
+      
+      // Add the bot's response with typewriter effect
+      const botMessage = { text: botReply, sender: 'bot' as const, timestamp: new Date() };
+      setMessages(prev => [...prev, botMessage]);
+      typewriterEffect(botReply, () => {});
+
     } catch (error: any) {
-      console.error("Error fetching AI response:", error);
+      console.error("Error details:", {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+
       let errorMessage = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
 
       if (error.response) {
         console.error("API Error:", error.response.data);
-        errorMessage = error.response.data?.error?.message || errorMessage;
+        errorMessage = error.response.data?.error || errorMessage;
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = "The request took too long to complete. Please try again.";
+      } else if (error.code === 'ERR_NETWORK') {
+        errorMessage = "Cannot connect to the AI server. Please check if the server is running and accessible.";
       }
 
-      typewriterEffect(errorMessage, () => {
-        setMessages(prev => [...prev, { 
-          text: errorMessage, 
-          sender: "bot",
-          timestamp: new Date()
-        }]);
-      });
+      const errorBotMessage = { text: errorMessage, sender: 'bot' as const, timestamp: new Date() };
+      setMessages(prev => [...prev, errorBotMessage]);
+      typewriterEffect(errorMessage, () => {});
     } finally {
       setIsLoading(false);
     }
