@@ -4,9 +4,75 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import axios from 'axios'; // Add at the top with other imports
 
 dotenv.config();
+// Configure Ollama - add these constants below your other imports
+const OLLAMA_BASE_URL = 'https://6066-2401-4900-61aa-4c4c-b9b1-6b2e-a4a9-fb37.ngrok-free.app'; // Directly set your local Ollama URL
+const DEFAULT_MODEL = 'llama2'; // Directly set your default model
 
+// The rest of your Ollama endpoint code remains the same:
+app.post('/api/ollama/generate', auth, async (req, res) => {
+  try {
+    const { prompt, model } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    const response = await axios.post(`${OLLAMA_BASE_URL}/api/generate`, {
+      model: model || DEFAULT_MODEL,
+      prompt: prompt,
+      stream: false
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Ollama generate error:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate response',
+      details: error.response?.data || error.message 
+    });
+  }
+});
+
+// List available Ollama models (Protected)
+app.get('/api/ollama/models', auth, async (req, res) => {
+  try {
+    const response = await axios.get(`${OLLAMA_BASE_URL}/api/tags`);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Ollama models error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch models',
+      details: error.response?.data || error.message 
+    });
+  }
+});
+
+// Pull a new Ollama model (Protected)
+app.post('/api/ollama/pull', auth, async (req, res) => {
+  try {
+    const { model } = req.body;
+    
+    if (!model) {
+      return res.status(400).json({ error: 'Model name is required' });
+    }
+
+    const response = await axios.post(`${OLLAMA_BASE_URL}/api/pull`, {
+      name: model,
+      stream: false
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Ollama pull error:', error);
+    res.status(500).json({ 
+      error: 'Failed to pull model',
+      details: error.response?.data || error.message 
+    });
+  }
+});
 const app = express();
 
 app.use(cors());
