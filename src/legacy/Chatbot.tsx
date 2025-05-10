@@ -28,8 +28,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ showChat, setShowChat }) => {
   const handleSend = async () => {
     if (input.trim() === "" || isLoading) return;
 
-    const userMessage = input.trim();
-    setMessages(prev => [...prev, { text: userMessage, sender: "user" }]);
+    const user_Message = input.trim();
+    setMessages(prev => [...prev, { text: user_Message, sender: "user" }]);
     setIsLoading(true);
     setInput("");
 
@@ -46,7 +46,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ showChat, setShowChat }) => {
 Previous conversation:
 ${messages.map(msg => `${msg.sender === "user" ? "User" : "Assistant"}: ${msg.text}`).join('\n')}
 
-User: ${userMessage}
+User: ${user_Message}
 
 Assistant:`,
           stream: false
@@ -69,18 +69,18 @@ Assistant:`,
         status: error.response?.status
       });
 
-      let errorMessage = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
+      let error_Message = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
 
       if (error.response) {
         console.error("API Error:", error.response.data);
-        errorMessage = error.response.data?.error || errorMessage;
+        error_Message = error.response.data?.error || error_Message;
       } else if (error.code === 'ECONNABORTED') {
-        errorMessage = "The request took too long to complete. Please try again.";
+        error_Message = "The request took too long to complete. Please try again.";
       } else if (error.code === 'ERR_NETWORK') {
-        errorMessage = "Cannot connect to the AI server. Please check if the server is running and accessible.";
+        error_Message = "Cannot connect to the AI server. Please check if the server is running and accessible.";
       }
 
-      setMessages(prev => [...prev, { text: errorMessage, sender: "bot" }]);
+      setMessages(prev => [...prev, { text: error_Message, sender: "bot" }]);
     } finally {
       setIsLoading(false);
     }

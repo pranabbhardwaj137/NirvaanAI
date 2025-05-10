@@ -272,8 +272,8 @@ function ChatWithNirvaan() {
   const handleSend = async () => {
     if (input.trim() === '') return;
 
-    const userMessage = { text: input, sender: 'user' as const, timestamp: new Date() };
-    setMessages(prev => [...prev, userMessage]);
+    const user_Message = { text: input, sender: 'user' as const, timestamp: new Date() };
+    setMessages(prev => [...prev, user_Message]);
     setIsLoading(true);
     setInput('');
 
@@ -283,8 +283,24 @@ function ChatWithNirvaan() {
         url: `${OLLAMA_API_URL}/api/generate`,
         data: {
           model: "qwen2.5-coder",
-          prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone.
+          // prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone.
+          prompt: `You are Nirvaan, an empathetic and professional AI assistant focused on mental wellness and stress management.
 
+                  Keep responses short, calming, and supportive (1–3 sentences).
+
+                  Maintain a gentle, understanding tone, like a compassionate guide.
+
+                  Avoid medical diagnosis or complex advice—focus on emotional support, reassurance, and simple coping suggestions.
+
+                  Use plain, non-technical language.
+
+                  Example scenarios include:
+
+                  Someone feeling overwhelmed, anxious, sad, or low on motivation
+
+                  A person needing a quick grounding tip or mental reset
+
+                  Requests for calming messages or check-ins
 Previous conversation:
 ${messages.map(msg => `${msg.sender === "user" ? "User" : "Assistant"}: ${msg.text}`).join('\n')}
 
@@ -306,7 +322,7 @@ Assistant:`,
       setIsTyping(true);
       setTypingMessage('');
       typewriterEffect(botReply, () => {
-        // Add the message to the chat history only after typewriter effect is complete
+        // Add the message to the chat history only   after typewriter effect is complete gagaggugu
         const botMessage = { text: botReply, sender: 'bot' as const, timestamp: new Date() };
         setMessages(prev => [...prev, botMessage]);
       });
@@ -319,22 +335,22 @@ Assistant:`,
         status: error.response?.status
       });
 
-      let errorMessage = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
+      let error_Message = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
 
       if (error.response) {
         console.error("API Error:", error.response.data);
-        errorMessage = error.response.data?.error || errorMessage;
+        error_Message = error.response.data?.error || error_Message;
       } else if (error.code === 'ECONNABORTED') {
-        errorMessage = "The request took too long to complete. Please try again.";
+        error_Message = "The request took too long to complete. Please try again.";
       } else if (error.code === 'ERR_NETWORK') {
-        errorMessage = "Cannot connect to the AI server. Please check if the server is running and accessible.";
+        error_Message = "Cannot connect to the AI server. Please check if the server is running and accessible.";
       }
 
       // Start typewriter effect for error message
       setIsTyping(true);
       setTypingMessage('');
-      typewriterEffect(errorMessage, () => {
-        const errorBotMessage = { text: errorMessage, sender: 'bot' as const, timestamp: new Date() };
+      typewriterEffect(error_Message, () => {
+        const errorBotMessage = { text: error_Message, sender: 'bot' as const, timestamp: new Date() };
         setMessages(prev => [...prev, errorBotMessage]);
       });
     } finally {
