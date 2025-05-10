@@ -143,6 +143,31 @@ const MoodAssessment: React.FC = () => {
               <p className="text-2xl font-semibold text-white drop-shadow-lg">{recommendedTherapy}</p>
             </div>
 
+            {/* Venting Text Box */}
+            <div className="mt-8">
+              <p className="text-white text-lg mb-4 text-center">Need to vent? Share your feelings here...</p>
+              <textarea
+                className="w-full h-32 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/40 resize-none"
+                placeholder="Write whatever's on your mind. This is a safe space to express yourself..."
+                onChange={(e) => {
+                  // Save to localStorage if needed
+                  if (user) {
+                    const ventingHistory = localStorage.getItem(`venting_history_${user.username}`) || '[]';
+                    const history = JSON.parse(ventingHistory);
+                    history.push({
+                      date: new Date().toISOString(),
+                      text: e.target.value,
+                      moodScore: score
+                    });
+                    localStorage.setItem(`venting_history_${user.username}`, JSON.stringify(history));
+                  }
+                }}
+              />
+              <p className="text-white/60 text-sm mt-2 text-center">
+                Your thoughts are private and will be saved only on your device.
+              </p>
+            </div>
+
             <div className="flex justify-center space-x-4">
               <button
                 onClick={() => {
