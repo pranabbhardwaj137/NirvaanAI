@@ -49,7 +49,23 @@ function Recommendations() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateEvent, setShowCreateEvent] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'events' | 'recommendations'>('all');
   const { user } = useAuth();
+
+  // Filter events and recommendations based on search query
+  const filteredEvents = events.filter(event => 
+    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.sport.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredRecommendations = recommendations.filter(rec =>
+    rec.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    rec.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    rec.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     if (user) {
@@ -155,8 +171,18 @@ function Recommendations() {
   }
 
   return (
-    <div className="min-h-screen bg-stress-dark py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div
+      className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative"
+      style={{
+        backgroundImage: `url('/src/imgs/community_bg.avif')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Overlay for readability */}
+      <div className="absolute inset-0 bg-stress-dark/80 backdrop-blur-sm z-0"></div>
+      <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Community</h1>
           <div className="flex space-x-4">
@@ -175,8 +201,61 @@ function Recommendations() {
           </div>
         </div>
 
+        {/* Search and Filter Section */}
+        <div className="mb-8 space-y-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Search events and recommendations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-yellow-500/20 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-500"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFilterType('all')}
+                className={`px-4 py-2 rounded-lg transition-all ${
+                  filterType === 'all'
+                    ? 'bg-yellow-500 text-black'
+                    : 'bg-gray-900 text-white border border-yellow-500/20'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setFilterType('events')}
+                className={`px-4 py-2 rounded-lg transition-all ${
+                  filterType === 'events'
+                    ? 'bg-yellow-500 text-black'
+                    : 'bg-gray-900 text-white border border-yellow-500/20'
+                }`}
+              >
+                Events
+              </button>
+              <button
+                onClick={() => setFilterType('recommendations')}
+                className={`px-4 py-2 rounded-lg transition-all ${
+                  filterType === 'recommendations'
+                    ? 'bg-yellow-500 text-black'
+                    : 'bg-gray-900 text-white border border-yellow-500/20'
+                }`}
+              >
+                Recommendations
+              </button>
+            </div>
+          </div>
+          {searchQuery && (
+            <p className="text-gray-400 text-sm">
+              Showing {filterType === 'all' ? filteredEvents.length + filteredRecommendations.length : 
+                       filterType === 'events' ? filteredEvents.length : filteredRecommendations.length} results
+            </p>
+          )}
+        </div>
+
         {/* My Events Section */}
-        {user && (
+        {user && filterType !== 'recommendations' && (
           <div className="mb-12">
             <h2 className="text-2xl font-semibold mb-4 text-yellow-500">My Events</h2>
             
@@ -251,64 +330,70 @@ function Recommendations() {
         )}
 
         {/* All Events Section */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4 text-yellow-500">All Events</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event) => (
-              <div key={event._id} className="bg-gray-900 rounded-lg p-6 border border-yellow-500/20">
-                <h4 className="text-white font-semibold mb-2">{event.title}</h4>
-                <p className="text-gray-400 mb-4">{event.description}</p>
-                <div className="space-y-2">
-                  <p><span className="text-yellow-500">Sport:</span> <span className="text-white">{event.sport}</span></p>
-                  <p><span className="text-yellow-500">Date:</span> <span className="text-white">{new Date(event.date).toLocaleDateString()}</span></p>
-                  <p><span className="text-yellow-500">Duration:</span> <span className="text-white">{event.duration} minutes</span></p>
-                  <p><span className="text-yellow-500">Location:</span> <span className="text-white">{event.location}</span></p>
-                  <p><span className="text-yellow-500">Participants:</span> <span className="text-white">{event.currentParticipants}/{event.maxParticipants}</span></p>
-                  <p><span className="text-yellow-500">Host:</span> <span className="text-white">{event.creatorId.username}</span></p>
+        {filterType !== 'recommendations' && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-semibold mb-4 text-yellow-500">All Events</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredEvents.map((event) => (
+                <div key={event._id} className="bg-gray-900 rounded-lg p-6 border border-yellow-500/20">
+                  <h4 className="text-white font-semibold mb-2">{event.title}</h4>
+                  <p className="text-gray-400 mb-4">{event.description}</p>
+                  <div className="space-y-2">
+                    <p><span className="text-yellow-500">Sport:</span> <span className="text-white">{event.sport}</span></p>
+                    <p><span className="text-yellow-500">Date:</span> <span className="text-white">{new Date(event.date).toLocaleDateString()}</span></p>
+                    <p><span className="text-yellow-500">Duration:</span> <span className="text-white">{event.duration} minutes</span></p>
+                    <p><span className="text-yellow-500">Location:</span> <span className="text-white">{event.location}</span></p>
+                    <p><span className="text-yellow-500">Participants:</span> <span className="text-white">{event.currentParticipants}/{event.maxParticipants}</span></p>
+                    <p><span className="text-yellow-500">Host:</span> <span className="text-white">{event.creatorId.username}</span></p>
+                  </div>
+                  {user && event.status === 'open' && event.currentParticipants < event.maxParticipants && (
+                    <button
+                      onClick={() => handleJoinEvent(event._id)}
+                      className="mt-4 bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-400 transition-all"
+                    >
+                      Join Event
+                    </button>
+                  )}
+                  {event.status === 'full' && (
+                    <p className="mt-4 text-red-500">Event is full</p>
+                  )}
                 </div>
-                {user && event.status === 'open' && event.currentParticipants < event.maxParticipants && (
-                  <button
-                    onClick={() => handleJoinEvent(event._id)}
-                    className="mt-4 bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-400 transition-all"
-                  >
-                    Join Event
-                  </button>
-                )}
-                {event.status === 'full' && (
-                  <p className="mt-4 text-red-500">Event is full</p>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Recommendations Section */}
-        <div>
-          <h2 className="text-2xl font-semibold mb-4 text-yellow-500">Recommendations</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recommendations.map((rec) => (
-              <div key={rec._id} className="bg-gray-900 rounded-lg p-6 border border-yellow-500/20">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm">
-                    {rec.type}
-                  </span>
-                  <span className="text-gray-400 text-sm">
-                    {new Date(rec.createdAt).toLocaleDateString()}
-                  </span>
+        {filterType !== 'events' && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-4 text-yellow-500">Recommendations</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRecommendations.map((rec) => (
+                <div key={rec._id} className="bg-gray-900 rounded-lg p-6 border border-yellow-500/20">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm">
+                      {rec.type}
+                    </span>
+                    <span className="text-gray-400 text-sm">
+                      {new Date(rec.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">{rec.title}</h3>
+                  <p className="text-gray-300 mb-4">{rec.description}</p>
+                  <div className="text-sm text-gray-400">
+                    Posted by {rec.userId.username}
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">{rec.title}</h3>
-                <p className="text-gray-300 mb-4">{rec.description}</p>
-                <div className="text-sm text-gray-400">
-                  Posted by {rec.userId.username}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {recommendations.length === 0 && events.length === 0 && (
+        {((filterType === 'all' && filteredEvents.length === 0 && filteredRecommendations.length === 0) ||
+          (filterType === 'events' && filteredEvents.length === 0) ||
+          (filterType === 'recommendations' && filteredRecommendations.length === 0)) && (
           <div className="text-center text-gray-400 mt-8">
-            No content yet. Be the first to post!
+            {searchQuery ? 'No results found for your search.' : 'No content yet. Be the first to post!'}
           </div>
         )}
       </div>
