@@ -147,9 +147,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(user);
       setIsAuthenticated(true);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || 'Login failed. Please check your credentials.';
-      console.error('Login error:', errorMessage);
-      throw new Error(errorMessage);
+      const error_Message = error.response?.data?.error || 'Login failed. Please check your credentials.';
+      console.error('Login error:', error_Message);
+      throw new Error(error_Message);
     }
   };
 
@@ -167,9 +167,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(user);
       setIsAuthenticated(true);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || 'Signup failed. Please try again.';
-      console.error('Signup error:', errorMessage);
-      throw new Error(errorMessage);
+      const error_Message = error.response?.data?.error || 'Signup failed. Please try again.';
+      console.error('Signup error:', error_Message);
+      throw new Error(error_Message);
     }
   };
 

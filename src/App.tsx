@@ -6,11 +6,11 @@ import Home from './pages/Home';
 import Services from './pages/Services';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
-import Chatbot from './components/Chatbot';
+import Chatbot from './legacy/Chatbot';
 import AudioTherapy from './pages/AudioTherapy';
 import MoodAssessmentPage from './pages/MoodAssessmentPage';
 import DoctorConsultation from './pages/DoctorConsultation';
-import ChatWithNirvaan from './pages/ChatWithNirvaan';
+import ChatWithNirvaan from './features/chat/ChatWithNirvaan';
 import LaughingTherapy from './pages/LaughingTherapy';
 import ReadingTherapy from './pages/ReadingTherapy';
 import PhysicalTherapy from './pages/PhysicalTherapy';
@@ -21,15 +21,25 @@ import CreateEvent from './pages/CreateEvent';
 import Notifications from './components/Notifications';
 import ProfilePage from './pages/ProfilePage';
 
+// TODO: Consider moving these routes to a separate config file
+// FIXME: Need to implement proper error boundaries for route components
+
 function AppContent() {
+  // TODO: Consider using a reducer for complex state management
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [showChat, setShowChat] = useState(false);
-  const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
+  // FIXME: This should be memoized if performance becomes an issue
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate('/login');
+  };
+
+  // Note: Keeping this simple for now, might need to be more sophisticated later
+  const toggleServices = () => {
+    setIsServicesOpen(!isServicesOpen);
   };
 
   return (
@@ -122,7 +132,7 @@ function AppContent() {
         </div>
       </nav>
 
-      {/* Routes */}
+      {/* Main Content */}
       <div className="pt-16">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -150,13 +160,14 @@ function AppContent() {
   );
 }
 
+// Wrapper component to provide auth context
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <AppContent />
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

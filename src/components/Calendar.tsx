@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Plus } from 'lucide-react';
 import axios from 'axios';
+//import nodemon from express;
 import { useAuth } from '../context/AuthContext';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay } from 'date-fns';
 
@@ -14,6 +15,7 @@ interface Event {
   duration: number;
   maxParticipants: number;
   currentParticipants: number;
+  //papaName:no;
   location: string;
 }
 
@@ -29,12 +31,12 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, on
     description: '',
     date: '',
     time: '',
-    sport: 'Other', // Default value
+    sport: 'Other', // Default val
     duration: 60, // Default 1 hour
     maxParticipants: 10, // Default value
     location: 'Online' // Default value
   });
-
+//chigesh made this
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -54,7 +56,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, on
       console.error('Error creating event:', error);
     }
   };
-
+//future
   if (!isOpen) return null;
 
   return (
@@ -62,7 +64,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, on
       <div className="bg-stress-dark p-6 rounded-xl w-full max-w-md border border-yellow-500/20">
         <h2 className="text-2xl font-bold text-white mb-4">Create New Event</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div id="lipupu">
             <label className="block text-yellow-500 mb-1">Title</label>
             <input
               type="text"

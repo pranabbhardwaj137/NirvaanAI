@@ -16,7 +16,21 @@ interface Message {
   timestamp: Date;
 }
 
+// Note: This was originally a class component, refactored to hooks
+// Keeping some old code for reference
+/*
+class ChatWithNirvaan extends React.Component {
+  state = {
+    messages: [],
+    input: '',
+    // ... rest of the state
+  }
+  // ... rest of the implementation
+}
+*/
+
 function ChatWithNirvaan() {
+  // State management
   const [messages, setMessages] = useState<Message[]>([
     { 
       text: "Hi! I'm Nirvaan, your AI companion for mental wellness. How can I help you today?", 
@@ -34,13 +48,17 @@ function ChatWithNirvaan() {
   const [isTyping, setIsTyping] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  
+  // Initialize speech synthesis
   const speechSynthesis = window.speechSynthesis;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
   const [recognitionTimeout, setRecognitionTimeout] = useState<NodeJS.Timeout | null>(null);
 
+  // TODO: Move this to a config file
   const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app";
 
+  // FIXME: These should probably be in a separate file
   const allSuggestions = [
     "Suggest a quick breathing exercise.",
     "I'm feeling overwhelmed. Can we talk?",
@@ -51,7 +69,8 @@ function ChatWithNirvaan() {
     "What should I do if I feel low?"
   ];
 
-  // Function to get random suggestions
+  // Utility function to get random suggestions
+  // Note: This could be optimized but keeping it simple for now
   const getRandomSuggestions = () => {
     const shuffled = [...allSuggestions].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 3);
@@ -118,6 +137,8 @@ function ChatWithNirvaan() {
     };
   }, [speechSynthesis]);
 
+  // Speech synthesis function
+  // TODO: Consider adding rate and pitch controls
   const speak = (text: string) => {
     if (speechSynthesis && selectedVoice) {
       const utterance = new SpeechSynthesisUtterance(text);
@@ -146,6 +167,7 @@ function ChatWithNirvaan() {
     };
   }, []);
 
+  // Speech recognition setup
   useEffect(() => {
     if (recognition) {
       recognition.continuous = true;  // Keep listening
@@ -213,6 +235,8 @@ function ChatWithNirvaan() {
     }
   };
 
+  // Typewriter effect for bot messages
+  // Note: This could be moved to a separate component
   const typewriterEffect = (text: string, onComplete: () => void) => {
     let index = 0;
     setIsTyping(true);
@@ -248,8 +272,8 @@ function ChatWithNirvaan() {
   const handleSend = async () => {
     if (input.trim() === '') return;
 
-    const userMessage = { text: input, sender: 'user' as const, timestamp: new Date() };
-    setMessages(prev => [...prev, userMessage]);
+    const user_Message = { text: input, sender: 'user' as const, timestamp: new Date() };
+    setMessages(prev => [...prev, user_Message]);
     setIsLoading(true);
     setInput('');
 
@@ -259,8 +283,24 @@ function ChatWithNirvaan() {
         url: `${OLLAMA_API_URL}/api/generate`,
         data: {
           model: "qwen2.5-coder",
-          prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone.
+          // prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone.
+          prompt: `You are Nirvaan, an empathetic and professional AI assistant focused on mental wellness and stress management.
 
+                  Keep responses short, calming, and supportive (1–3 sentences).
+
+                  Maintain a gentle, understanding tone, like a compassionate guide.
+
+                  Avoid medical diagnosis or complex advice—focus on emotional support, reassurance, and simple coping suggestions.
+
+                  Use plain, non-technical language.
+
+                  Example scenarios include:
+
+                  Someone feeling overwhelmed, anxious, sad, or low on motivation
+
+                  A person needing a quick grounding tip or mental reset
+
+                  Requests for calming messages or check-ins
 Previous conversation:
 ${messages.map(msg => `${msg.sender === "user" ? "User" : "Assistant"}: ${msg.text}`).join('\n')}
 
@@ -282,7 +322,7 @@ Assistant:`,
       setIsTyping(true);
       setTypingMessage('');
       typewriterEffect(botReply, () => {
-        // Add the message to the chat history only after typewriter effect is complete
+        // Add the message to the chat history only   after typewriter effect is complete gagaggugu
         const botMessage = { text: botReply, sender: 'bot' as const, timestamp: new Date() };
         setMessages(prev => [...prev, botMessage]);
       });
@@ -295,22 +335,22 @@ Assistant:`,
         status: error.response?.status
       });
 
-      let errorMessage = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
+      let error_Message = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
 
       if (error.response) {
         console.error("API Error:", error.response.data);
-        errorMessage = error.response.data?.error || errorMessage;
+        error_Message = error.response.data?.error || error_Message;
       } else if (error.code === 'ECONNABORTED') {
-        errorMessage = "The request took too long to complete. Please try again.";
+        error_Message = "The request took too long to complete. Please try again.";
       } else if (error.code === 'ERR_NETWORK') {
-        errorMessage = "Cannot connect to the AI server. Please check if the server is running and accessible.";
+        error_Message = "Cannot connect to the AI server. Please check if the server is running and accessible.";
       }
 
       // Start typewriter effect for error message
       setIsTyping(true);
       setTypingMessage('');
-      typewriterEffect(errorMessage, () => {
-        const errorBotMessage = { text: errorMessage, sender: 'bot' as const, timestamp: new Date() };
+      typewriterEffect(error_Message, () => {
+        const errorBotMessage = { text: error_Message, sender: 'bot' as const, timestamp: new Date() };
         setMessages(prev => [...prev, errorBotMessage]);
       });
     } finally {
@@ -326,23 +366,23 @@ Assistant:`,
   };
 
   return (
-    <div 
-      className="min-h-screen bg-cover bg-center bg-fixed relative"
-      style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80')`,
-      }}
-    >
-      {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-sm"></div>
-      
-      <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+    <div className="min-h-screen bg-stress-gray flex items-center justify-center p-4" style={{
+      backgroundImage: 'url("/src/imgs/yog.jpg")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}>
+      <div className="w-[90%] h-[90vh] max-w-6xl mx-auto">
+        <div className="bg-black/60 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 h-full flex flex-col relative overflow-hidden">
+          {/* Decorative Elements */}
+          <div className="absolute inset-0 bg-gradient-to-br from-stress-yellow/5 to-transparent pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-stress-yellow/50 to-transparent" />
+          
           {/* Header */}
-          <div className="bg-black/40 p-6 border-b border-white/10">
+          <div className="p-6 border-b border-white/10 relative z-10">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-white">
-                Chat with <span className="text-stress-yellow">Nirvaan AI</span>
-              </h1>
+              <h1 className="text-3xl font-bold text-white">Chat with Nirvaan</h1>
+              
               <div className="flex items-center space-x-4">
                 <select
                   value={selectedVoice?.name || ''}
@@ -374,7 +414,7 @@ Assistant:`,
           </div>
 
           {/* Chat Messages */}
-          <div className="h-[calc(100vh-300px)] overflow-y-auto p-6 space-y-6 bg-black/20">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 relative z-10">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -387,27 +427,15 @@ Assistant:`,
                       : 'bg-black/40 text-white backdrop-blur-sm'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{message.text}</p>
-                  <span className="text-xs opacity-70 mt-2 block">
-                    {message.timestamp.toLocaleTimeString()}
-                  </span>
+                  {message.text}
                 </div>
               </div>
             ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-black/40 text-white rounded-2xl p-4 backdrop-blur-sm">
-                  <div className="flex space-x-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Nirvaan is thinking...</span>
-                  </div>
-                </div>
-              </div>
-            )}
             {isTyping && (
               <div className="flex justify-start">
                 <div className="bg-black/40 text-white rounded-2xl p-4 backdrop-blur-sm">
-                  <p className="whitespace-pre-wrap">{typingMessage}</p>
+                  {typingMessage}
+                  <span className="animate-pulse">|</span>
                 </div>
               </div>
             )}
@@ -415,7 +443,7 @@ Assistant:`,
           </div>
 
           {/* Input Area */}
-          <div className="bg-black/40 p-6 border-t border-white/10">
+          <div className="bg-black/60 p-6 border-t border-white/10 relative z-10">
             {/* Suggestion Buttons */}
             <div className="flex flex-wrap justify-center gap-4 mb-4">
               {suggestions.map((suggestion, index) => (
@@ -425,7 +453,7 @@ Assistant:`,
                     setInput(suggestion);
                     handleSend();
                   }}
-                  className="px-4 py-2 rounded-full bg-stress-yellow/20 text-stress-yellow hover:bg-stress-yellow/30 transition-all text-sm whitespace-nowrap"
+                  className="px-4 py-2 rounded-full bg-stress-yellow/20 text-stress-yellow hover:bg-stress-yellow/30 transition-all text-sm whitespace-nowrap backdrop-blur-sm"
                 >
                   {suggestion}
                 </button>
@@ -439,7 +467,7 @@ Assistant:`,
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   disabled={isLoading || isListening}
-                  className="w-full px-6 py-3 rounded-full bg-black/40 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-stress-yellow disabled:opacity-50"
+                  className="w-full px-6 py-3 rounded-full bg-black/40 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-stress-yellow disabled:opacity-50 backdrop-blur-sm"
                   placeholder={isListening ? "Listening... (speak now)" : "Type your message..."}
                 />
                 <button
