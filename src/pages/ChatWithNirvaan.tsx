@@ -32,6 +32,7 @@ function ChatWithNirvaan() {
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
   const [typingMessage, setTypingMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const speechSynthesis = window.speechSynthesis;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -39,6 +40,34 @@ function ChatWithNirvaan() {
   const [recognitionTimeout, setRecognitionTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app";
+
+  const allSuggestions = [
+    "Suggest a quick breathing exercise.",
+    "I'm feeling overwhelmed. Can we talk?",
+    "I don't know how I feel right now.",
+    "Give me tips based on my current stress level.",
+    "I just need someone to talk to.",
+    "Can you help me deal with anxiety?",
+    "What should I do if I feel low?"
+  ];
+
+  // Function to get random suggestions
+  const getRandomSuggestions = () => {
+    const shuffled = [...allSuggestions].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  };
+
+  // Initialize suggestions
+  useEffect(() => {
+    setSuggestions(getRandomSuggestions());
+  }, []);
+
+  // Update suggestions when a message is sent
+  useEffect(() => {
+    if (messages.length > 1) {
+      setSuggestions(getRandomSuggestions());
+    }
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,15 +85,14 @@ function ChatWithNirvaan() {
       
       // Try to find preferred voices in order of preference
       const preferredVoices = [
-        'Google US English',
+        'Google US English Female',
         'Google UK English Female',
         'Microsoft Aria Online (Natural)',
         'Microsoft Jenny Online (Natural)',
+        'Microsoft Guy Online (Natural)',
         'Samantha',
         'Daniel',
-        'Moira',
-        'Microsoft Zira Desktop',
-        'Google UK English Male'
+        'Moira'
       ];
       
       const preferredVoice = availableVoices.find(voice => 
@@ -250,10 +278,14 @@ Assistant:`,
       console.log('API Response:', response.data);
       const botReply = response.data.response?.trim() || "I'm here to assist you!";
       
-      // Add the bot's response with typewriter effect
-      const botMessage = { text: botReply, sender: 'bot' as const, timestamp: new Date() };
-      setMessages(prev => [...prev, botMessage]);
-      typewriterEffect(botReply, () => {});
+      // Start typewriter effect immediately
+      setIsTyping(true);
+      setTypingMessage('');
+      typewriterEffect(botReply, () => {
+        // Add the message to the chat history only after typewriter effect is complete
+        const botMessage = { text: botReply, sender: 'bot' as const, timestamp: new Date() };
+        setMessages(prev => [...prev, botMessage]);
+      });
 
     } catch (error: any) {
       console.error("Error details:", {
@@ -274,9 +306,13 @@ Assistant:`,
         errorMessage = "Cannot connect to the AI server. Please check if the server is running and accessible.";
       }
 
-      const errorBotMessage = { text: errorMessage, sender: 'bot' as const, timestamp: new Date() };
-      setMessages(prev => [...prev, errorBotMessage]);
-      typewriterEffect(errorMessage, () => {});
+      // Start typewriter effect for error message
+      setIsTyping(true);
+      setTypingMessage('');
+      typewriterEffect(errorMessage, () => {
+        const errorBotMessage = { text: errorMessage, sender: 'bot' as const, timestamp: new Date() };
+        setMessages(prev => [...prev, errorBotMessage]);
+      });
     } finally {
       setIsLoading(false);
     }
@@ -368,7 +404,7 @@ Assistant:`,
                 </div>
               </div>
             )}
-            {isTyping && !isLoading && (
+            {isTyping && (
               <div className="flex justify-start">
                 <div className="bg-black/40 text-white rounded-2xl p-4 backdrop-blur-sm">
                   <p className="whitespace-pre-wrap">{typingMessage}</p>
@@ -380,6 +416,21 @@ Assistant:`,
 
           {/* Input Area */}
           <div className="bg-black/40 p-6 border-t border-white/10">
+            {/* Suggestion Buttons */}
+            <div className="flex flex-wrap justify-center gap-4 mb-4">
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setInput(suggestion);
+                    handleSend();
+                  }}
+                  className="px-4 py-2 rounded-full bg-stress-yellow/20 text-stress-yellow hover:bg-stress-yellow/30 transition-all text-sm whitespace-nowrap"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
             <div className="flex space-x-4">
               <div className="flex-1 relative">
                 <input

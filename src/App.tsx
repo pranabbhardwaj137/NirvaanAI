@@ -78,14 +78,14 @@ function AppContent() {
             </Link>
 
             {/* Chatbot Button */}
-            <button
-              onClick={() => setShowChat(!showChat)}
+            <Link
+              to="/chat-with-nirvaan"
               className="group flex items-center space-x-2 px-4 py-2 rounded-full bg-yellow-500 hover:bg-yellow-400 text-white transition-all duration-300 border-2 border-yellow-500 hover:border-yellow-400 shadow-lg hover:shadow-yellow-500/20"
               aria-label="Chat with us"
             >
               <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
               <span className="font-semibold">Chat Now</span>
-            </button>
+            </Link>
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
