@@ -39,8 +39,9 @@ const Chatbot: React.FC<ChatbotProps> = ({ showChat, setShowChat }) => {
         method: 'post',
         url: `${OLLAMA_API_URL}/api/generate`,
         data: {
-          model: "mistral",
-          prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone.
+          model: "qwen2.5-coder",
+          prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone
+          give short answers.
 
 Previous conversation:
 ${messages.map(msg => `${msg.sender === "user" ? "User" : "Assistant"}: ${msg.text}`).join('\n')}

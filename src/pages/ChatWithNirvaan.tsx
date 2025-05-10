@@ -258,7 +258,7 @@ function ChatWithNirvaan() {
         method: 'post',
         url: `${OLLAMA_API_URL}/api/generate`,
         data: {
-          model: "mistral",
+          model: "qwen2.5-coder",
           prompt: `You are Nirvaan, a helpful AI assistant focused on mental wellness and stress management. Provide supportive, empathetic responses while maintaining a professional tone.
 
 Previous conversation:
