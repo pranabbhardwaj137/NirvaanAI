@@ -16,7 +16,21 @@ interface Message {
   timestamp: Date;
 }
 
+// Note: This was originally a class component, refactored to hooks
+// Keeping some old code for reference
+/*
+class ChatWithNirvaan extends React.Component {
+  state = {
+    messages: [],
+    input: '',
+    // ... rest of the state
+  }
+  // ... rest of the implementation
+}
+*/
+
 function ChatWithNirvaan() {
+  // State management
   const [messages, setMessages] = useState<Message[]>([
     { 
       text: "Hi! I'm Nirvaan, your AI companion for mental wellness. How can I help you today?", 
@@ -34,13 +48,17 @@ function ChatWithNirvaan() {
   const [isTyping, setIsTyping] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  
+  // Initialize speech synthesis
   const speechSynthesis = window.speechSynthesis;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
   const [recognitionTimeout, setRecognitionTimeout] = useState<NodeJS.Timeout | null>(null);
 
+  // TODO: Move this to a config file
   const OLLAMA_API_URL = "https://growing-shiner-enough.ngrok-free.app";
 
+  // FIXME: These should probably be in a separate file
   const allSuggestions = [
     "Suggest a quick breathing exercise.",
     "I'm feeling overwhelmed. Can we talk?",
@@ -51,7 +69,8 @@ function ChatWithNirvaan() {
     "What should I do if I feel low?"
   ];
 
-  // Function to get random suggestions
+  // Utility function to get random suggestions
+  // Note: This could be optimized but keeping it simple for now
   const getRandomSuggestions = () => {
     const shuffled = [...allSuggestions].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 3);
@@ -118,6 +137,8 @@ function ChatWithNirvaan() {
     };
   }, [speechSynthesis]);
 
+  // Speech synthesis function
+  // TODO: Consider adding rate and pitch controls
   const speak = (text: string) => {
     if (speechSynthesis && selectedVoice) {
       const utterance = new SpeechSynthesisUtterance(text);
@@ -146,6 +167,7 @@ function ChatWithNirvaan() {
     };
   }, []);
 
+  // Speech recognition setup
   useEffect(() => {
     if (recognition) {
       recognition.continuous = true;  // Keep listening
@@ -213,6 +235,8 @@ function ChatWithNirvaan() {
     }
   };
 
+  // Typewriter effect for bot messages
+  // Note: This could be moved to a separate component
   const typewriterEffect = (text: string, onComplete: () => void) => {
     let index = 0;
     setIsTyping(true);
@@ -326,23 +350,14 @@ Assistant:`,
   };
 
   return (
-    <div 
-      className="min-h-screen bg-cover bg-center bg-fixed relative"
-      style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80')`,
-      }}
-    >
-      {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-sm"></div>
-      
-      <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+    <div className="min-h-screen bg-stress-gray">
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="bg-black/40 backdrop-blur-sm rounded-2xl shadow-xl border border-white/10 overflow-hidden">
           {/* Header */}
-          <div className="bg-black/40 p-6 border-b border-white/10">
+          <div className="p-6 border-b border-white/10">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-white">
-                Chat with <span className="text-stress-yellow">Nirvaan AI</span>
-              </h1>
+              <h1 className="text-2xl font-bold text-white">Chat with Nirvaan</h1>
+              
               <div className="flex items-center space-x-4">
                 <select
                   value={selectedVoice?.name || ''}
@@ -374,7 +389,7 @@ Assistant:`,
           </div>
 
           {/* Chat Messages */}
-          <div className="h-[calc(100vh-300px)] overflow-y-auto p-6 space-y-6 bg-black/20">
+          <div className="h-[600px] overflow-y-auto p-6 space-y-4">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -384,30 +399,18 @@ Assistant:`,
                   className={`max-w-[80%] rounded-2xl p-4 ${
                     message.sender === 'user'
                       ? 'bg-stress-yellow text-stress-dark'
-                      : 'bg-black/40 text-white backdrop-blur-sm'
+                      : 'bg-black/40 text-white'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{message.text}</p>
-                  <span className="text-xs opacity-70 mt-2 block">
-                    {message.timestamp.toLocaleTimeString()}
-                  </span>
+                  {message.text}
                 </div>
               </div>
             ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-black/40 text-white rounded-2xl p-4 backdrop-blur-sm">
-                  <div className="flex space-x-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Nirvaan is thinking...</span>
-                  </div>
-                </div>
-              </div>
-            )}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-black/40 text-white rounded-2xl p-4 backdrop-blur-sm">
-                  <p className="whitespace-pre-wrap">{typingMessage}</p>
+                <div className="bg-black/40 text-white rounded-2xl p-4">
+                  {typingMessage}
+                  <span className="animate-pulse">|</span>
                 </div>
               </div>
             )}
